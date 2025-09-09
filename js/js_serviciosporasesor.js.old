@@ -1,0 +1,177 @@
+var date = null, dia = null, mes = null, anio = null, fecha = null, servicios = null, fecha = null, diferencia = null, porGan = null,
+        totVlrCont = null, totVlrCli = null, totPor = null, fechaActual = null, asesores = '', fechaSeleccion = null, fechaInicial = null,
+        fechaFinal = null, asesor = null, serviciosVarios = [], auxiliar = null, parqueadero = null, otros = null, otrosValores = null, valoresExtras = {}, porFacturar = 0,
+        clase = null, clase2 = null, totalValoresDos = null;
+;
+$(document).ready(function () {
+    $("#botonSalir").click(function () {
+        window.location.href = "../trafico/salir.php";
+    });
+
+    $('#botonGenerarExcel').click(function () {
+
+        $("#tablaExcel").table2excel({
+            exclude: ".noExl",
+            name: "Excel Document Name",
+            filename: 'archivo',
+            fileext: ".xls",
+            exclude_img: true,
+            exclude_links: true,
+            exclude_inputs: true
+        });
+    });
+
+    $("#botonRegresar").click(function () {
+        window.location.href = "../modulos/index.php";
+    });
+
+
+});
+
+function consultarServicios(opcion) {
+
+    date = null;
+    dia = null;
+    mes = null;
+    anio = null;
+    fecha = null;
+    servicios = null;
+    fecha = null;
+    diferencia = null;
+    porGan = null;
+    totVlrCont = null;
+    totVlrCli = null;
+    totPor = null;
+    fechaActual = null;
+    asesores = '';
+    fechaSeleccion = null;
+    fechaInicial = null;
+    fechaFinal = null;
+    asesor = null;
+    fechaAsesor = null;
+    fechaPagado = null;
+    municipios = [];
+    municipioOrigen = null;
+    municipioDestino = null;
+    serviciosVarios = [];
+    nitEmpresa = null;
+    auxiliar = null;
+    parqueadero = null;
+    otros = null;
+    otrosValores = null;
+
+    if ($("#rol_id").val() === '2' || $("#rol_id").val() === '6' || $("#rol_id").val() === '7') {
+        if (confirm("Para ver el listado de servicios general presione Aceptar/OK\nPara ver su listado de servicios presione Cancelar/Cancel")) {
+            primerTraida();
+        } else {
+            segundaTraida();
+        }
+    } else {
+        segundaTraida();
+    }
+
+
+
+}
+
+function primerTraida() {
+
+    if ($("#fechaInicial").val() === '') {
+        alert("Por favor seleccione una fecha inicial");
+        $("#fechaInicial").focus();
+    } else {
+        $.ajax({
+            url: "../trafico/listarServicios.php",
+            data: {'opcion': 1,
+                'fechaInicial': $("#fechaInicial").val(),
+                'fechaFinal': $("#fechaFinal").val()},
+            type: "POST",
+            beforeSend: function () {
+                $("#mensajes").html("<div class='alert alert-dismissible alert-success'>Realizando operaciones solicitadas, un momento por favor...</div>");
+            },
+            success: function (data) {
+                var obj = JSON.parse(data);
+                pintarTablaGeneral(obj, 1);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("Error function primerTraida() {...retorno desde el servidor");
+            }
+        });
+    }
+    servicios = null;
+}
+
+
+function segundaTraida() {
+    fechaInicial = $("#fechaInicial").val();
+    fechaFinal = $("#fechaFinal").val();
+    asesor = $("#idasesor").val();
+    $.ajax({
+        url: "../trafico/listarServicios.php",
+        data: {'opcion': 2,
+            'fechaInicial': fechaInicial,
+            'fechaFinal': fechaFinal,
+            'idasesor': asesor},
+        type: "POST",
+        beforeSend: function () {
+            $("#mensajes").html("<div class='alert alert-dismissible alert-success'>Realizando operaciones solicitadas, un momento por favor...</div>");
+        },
+        success: function (data) {
+            //console.log(data);
+            var obj = JSON.parse(data);
+            pintarTablaGeneral(obj, 1);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert("Error function segundaTraida(){...retorno desde el servidor");
+        }
+    });
+    servicios = null;
+}
+
+function pintarTablaGeneral(obj) {
+    $("#mensajes").addClass("divGeneral");
+    if (obj !== false && obj.servicios.length > 0) {
+        servicios = '<div>\n\
+<table class="table table-hover" id="tablaExcel">\n\
+<tr><th>Servicio</th><th>Placa</th><th>CC Prop.</th><th>Nomb. Prop.</th><th>CC Cond.</th><th>Nomb. Cond.</th>\n\
+<th>Fecha</th><th>Gu&iacute;a</th><th>Cliente</th><th>Asesor</th><th>Origen</th><th>Destino</th><th>Factura</th>\n\
+<th>Vlr Cliente</th><th>Vlr Contratista</th><th>Vlr. Aux.</th><th>Otros Pag.</th><th>Diferencia</th><th>%</th></tr>';
+        for (var i = 0, max = obj.servicios.length; i < max; i++) {
+
+            if (obj.servicios[i].factura === '0') {
+                porFacturar += 1;
+            }
+
+            valoresDos = parseInt(obj.servicios[i].otros) + parseInt(obj.servicios[i].parqueadero);
+            otrosValores = valoresDos + parseInt(obj.servicios[i].auxiliar);
+            totalValoresDos += otrosValores;
+            diferencia = (parseInt(obj.servicios[i].valorCobrado) - parseInt(obj.servicios[i].valorPagado) - otrosValores);
+            porGan = 100 - (100 - (diferencia * 100) / parseInt(obj.servicios[i].valorCobrado));
+
+            if (porGan <= 0) {
+                porGan = 0;
+            }
+
+            servicios += "<tr><td><a class='btn btn-success btn-xs' target='_blank' href='../modulos/administrarServiciosDos.php?idserv=" + obj.servicios[i].idservicio + "'>" + obj.servicios[i].idservicio + "</a></td>"
+            servicios += "<td>" + obj.servicios[i].placa + "</td><td>" + obj.servicios[i].cedulaPropietario + "</td><td>" + obj.propietarios[i].nombrePropietario + "</td>"
+            servicios += "<td>" + obj.servicios[i].cedulaConductor + "</td><td>" + obj.conductores[i].nombreConductor + "</td><td>" + obj.servicios[i].fechaServicio + "</td>"
+            servicios += "<td>" + obj.servicios[i].numeroGuia + "</td><td>" + obj.empresas[i].nombreEmpresa + "</td><td>" + obj.asesores[i].nombreAsesor + "</td>"
+            servicios += "<td>" + obj.servicios[i].ciudadOrigen + "</td><td>" + obj.servicios[i].ciudadDestino + "</td><td>" + obj.servicios[i].factura + "</td>"
+            servicios += "<td>$" + $.number(obj.servicios[i].valorCobrado) + "</td><td>$" + $.number(obj.servicios[i].valorPagado) + "</td>"
+            servicios += "<td>$" + $.number(obj.servicios[i].auxiliar) + "</td><td>$" + $.number(valoresDos) + "</td><td>$" + $.number(diferencia) + "</td><td>" + porGan.toFixed(1) + "</td></tr>";
+            valoresDos = 0;
+            totVlrCli += parseInt(obj.servicios[i].valorCobrado);
+            totVlrCont += parseInt(obj.servicios[i].valorPagado);
+            totPor += porGan;
+        }
+
+        totPor = totPor / obj.servicios.length;
+        servicios += '<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>Cantidad servicios</td><td>' + obj.servicios.length + '</td>\n\
+<td>Por facturar:</td><td>' + porFacturar + '</td><td>$' + $.number(totVlrCli) + '</td><td>$' + $.number(totVlrCont) + '</td><td></td><td>$' + $.number(totalValoresDos) + '</td><td>$' + $.number(totVlrCli - (totVlrCont + totalValoresDos)) + '</td><td>' + totPor.toFixed(1) + '</td></tr>';
+        servicios += '</table></div>';
+        $("#mensajes").html(servicios);
+    } else {
+        $("#mensajes").html("<div class='alert alert-dismissible alert-danger'>Con las fechas seleccionadas no se encuentran servicios ingresados,por favor verifique</div>");
+        $("#listarServiciosPor").val("0");
+    }
+}

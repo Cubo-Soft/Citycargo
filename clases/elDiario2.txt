@@ -1,0 +1,9 @@
+Para ingresar las entregas de Electrojaponesa deberia crear una tabla donde esten los siguientes datos:
+guia
+ciudad de destino
+documento de cliente
+factura cliente
+valor (resultado de dividir valor servicio entre total de entregas)
+Por supuesto la interfaz para que ingresar dichos datos, pero además que al consultar el número de guía
+traiga algún dato.
+Pero primero voy  a trabajar en la normalización de los módulos

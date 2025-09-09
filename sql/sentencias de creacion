@@ -1,0 +1,147 @@
+--creada en servidor 201803261219
+drop table servicios;
+--creada en servidor 201803261219
+drop table posiblesanticipos;
+--creada en servidor 201803261219
+drop table serviciosborrados;
+--creada en servidor 201803261219
+drop table trasabilidad;
+--creada en servidor 201803261219
+drop table valores;
+--creada en servidor 201803261219
+drop table posiblesfacturas;
+
+CREATE TABLE `usapostal_2`.`servicios` ( `idservicio` INT NOT NULL AUTO_INCREMENT COMMENT 'numero de servicio' , 
+`idempleado` INT NOT NULL COMMENT 'identificación del empleado en tabla empleados' , 
+`fecha` DATETIME NOT NULL COMMENT 'fecha de inicio del servicio' , 
+`idcliente` VARCHAR(30) NOT NULL COMMENT 'identificación del cliente en tabla clientes' , 
+`placa` TEXT NOT NULL COMMENT 'placa del vehiculo que presta el servicio' , 
+`guia` INT(12) NOT NULL COMMENT 'puede ser el número de guia puede ser nulo' , 
+`planilla` INT(12) NOT NULL COMMENT 'puede ser el número de planilla puede ser nulo' , 
+`auxiliar` VARCHAR(50) NOT NULL COMMENT 'tiene relacion con el número de guía o con el número de planilla' , 
+`direccionorigen` TEXT NOT NULL COMMENT 'dirección donde se inicia el servicio' , 
+`telefonoorigen` INT NOT NULL COMMENT 'telefono donde se inicia el servicio' , 
+`idciudadorigen` INT NOT NULL COMMENT 'identificación de la ciudad en tabla municipios' , 
+`direcciondestino` TEXT NOT NULL COMMENT 'dirección donde se termina el servicio' , 
+`telefonodestino` INT NOT NULL COMMENT 'telefono donde se termina el servicio' , 
+`idciudaddestino` INT NOT NULL COMMENT 'identificación de la ciudad en tabla municipios' , 
+`cedulapropietario` INT NOT NULL COMMENT 'numero de cédula del propietario' , 
+`cedulaconductor` INT NOT NULL COMMENT 'numero de cédula del conductor' , 
+`valortotal` INT NOT NULL COMMENT 'valor total del servicio' , 
+`valorapagar` INT NOT NULL COMMENT 'valor a pagar por el servicio' ,
+PRIMARY KEY (`idservicio`)) ENGINE = InnoDB;
+
+CREATE TABLE `usapostal_2`.`valores` ( `idvalor` INT NOT NULL AUTO_INCREMENT COMMENT 'autoincrementable' , 
+`idservicio` INT NOT NULL COMMENT 'identificador del servicio' , 
+`valor` INT NOT NULL COMMENT 'valor parcial del total del servicio, tiene relación con valortotal en tabla servicios' , 
+`detalle` VARCHAR(50) NOT NULL COMMENT 'donde se explica el por que del valor anterior' , 
+PRIMARY KEY (`idvalor`)) ENGINE = InnoDB;
+
+--INSERT INTO `rol_boton` (`id_rol_boton`, `id_rol`, `id_boton`) VALUES (NULL, '2', '14'), 
+--(NULL, '4', '14'), 
+--(NULL, '6', '14'), 
+--(NULL, '7', '14'), (
+--NULL, '8', '14'), 
+--(NULL, '3', '14'), 
+--(NULL, '1', '14'),
+--(NULL, '2', '11');
+
+CREATE TABLE `trasabilidad` (
+  `idservicio` int(11) NOT NULL COMMENT 'Numero de servicio creado en la tabla servicios',
+  `fecha` datetime NOT NULL COMMENT 'Fecha de creacion del evento en esta tabla',
+  `referencia` varchar(50) NOT NULL COMMENT 'Es uno de los tres valores siguientes: numero de guia, numero de planilla u otro',
+  `evento` varchar(30) NOT NULL COMMENT 'Pueden ser cinco: creacion, anticipo, pago conductor, factura. Pendiente caja'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+create table serviciosborrados(
+idservicio int not null,
+idempleado int not null,
+fecha datetime not null,
+idcliente varchar(30) not null,
+placa text not null,
+guia int(12) not null,
+planilla int(12) not null,
+auxiliar varchar(50) not null,
+direccionorigen text not null,
+telefonoorigen int(11) not null,
+idciudadorigen int(11) not null,
+direcciondestino text not null,
+telefonodestino int(11) not null,
+idciudaddestino int(11) not null,
+cedulapropietario int(11) not null,
+cedulaconductor int(11) not null,
+valortotal int(11) not null,
+valorapagar int(11) not null,
+fechaborrado datetime not null);
+
+create table posiblesanticipos(
+idservicio int not null,
+nitempresa varchar(30) not null,
+placa varchar(8) not null,
+fechaservicio datetime not null,
+posiblevaloranticipo double not null,
+valorservicio double not null,
+estado varchar(30) not null);
+
+--delete from servicios;
+--delete from posiblesanticipos;
+--delete from serviciosborrados;
+--delete from trasabilidad;
+--delete from valores;
+
+--select * from servicios;
+--select * from posiblesanticipos;
+--select * from serviciosborrados;
+--select * from trasabilidad;
+--select * from valores;
+
+--201803261225 Esta tabla ya estaba creada, faltaba era la sentencia de modificación
+CREATE TABLE `posiblesfacturas` (
+  `pos_id` int(11) NOT NULL,
+  `nit` int(11) NOT NULL,
+  `empresa` varchar(200) NOT NULL,
+  `fecha` date NOT NULL,
+  `numeroguia` varchar(200) NOT NULL,
+  `valorservicio` int(11) NOT NULL,
+  `valorempresa` int(11) NOT NULL,
+  `factura` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `posiblesfacturas` ADD `factura` INT NOT NULL AFTER `valorempresa`;
+
+--201805101601 Tabla para cuando el servicio tiene varias guias
+CREATE TABLE `usapostal_2`.`serviciovariasguias`( 
+`id` INT NOT NULL AUTO_INCREMENT , 
+`idservicio` INT NOT NULL , 
+`guia` INT NOT NULL , 
+`planilla` INT NOT NULL , 
+`otro` VARCHAR(20) NOT NULL , 
+`idcliente` VARCHAR(30) NOT NULL , 
+`direccion` TEXT NOT NULL , 
+`telefono` INT NOT NULL , 
+`idciudaddestino` INT NOT NULL , 
+PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+--201805151047 Me hacia falta el valor a facturar al cliente en la tabla 
+--servicios
+ALTER TABLE `servicios` ADD `valorcliente` INT NOT NULL AFTER `valorapagar`;
+
+--201805181607 Modificar tabla serviciovariasguias para cuando
+--el servicio es de varias empresas
+ALTER TABLE `serviciovariasguias` ADD `valorContratista` INT NOT NULL AFTER 
+`idciudaddestino`, ADD `auxiliar` INT NOT NULL AFTER `valorContratista`, 
+ADD `parqueadero` INT NOT NULL AFTER `auxiliar`, ADD `otros` INT NOT NULL AFTER `parqueadero`,
+ ADD `costoTotal` INT NOT NULL AFTER `otros`, ADD `valorFacturar` INT NOT NULL AFTER `costoTotal`;
+
+--201805291022 Cambio la estructura de la tabla posiblesanticipos
+ALTER TABLE `posiblesanticipos` ADD `guias` VARCHAR(200) NOT NULL AFTER `estado`;
+
+delete from servicios;
+delete from serviciovariasguias;
+delete from trasabilidad;
+delete from posiblesanticipos;
+delete from valoresanticipos;
+delete from guias;
+delete from posiblesfacturas;
+
+--201806132139 Agrego el campo idservicio a la tabla posiblesfacturas
+ALTER TABLE `posiblesfacturas` ADD `idservicio` INT NOT NULL AFTER `factura` ;

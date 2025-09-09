@@ -1,0 +1,177 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 7/10/2016, 09:02:42 PM
+    Author     : wilmer
+*/
+
+.oculta{
+    display: none;
+}
+
+.input1TablaDescripcionServicio{
+    width: 130px;
+}
+
+.paddinMargin{
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+}
+.tamanioTr{
+    width:150px;
+}
+
+.tamanioTr2{
+    width:100px;
+}
+
+.color{
+    color:#31ac64;
+    font-weight: bold;
+}
+
+.tamanio{
+    background-color:#d9f7e8;
+}
+
+.sombreado{
+    background-color:#D8D8D8;
+}
+
+.sombreadoDos{
+    background-color:#31ac64;
+}
+
+.botonPropio{
+    width: 245px;
+    height: 28px;
+    margin: 5px 5px 5px 5px;    
+}
+
+.botonIndex{    
+    width: 200px;
+    height: 45px;
+    margin: 5px 5px 5px 5px;    
+    background-color: white;        
+}
+
+.agrandarBotonIndex{    
+    width: 203px;      
+    height: 47px;
+    margin: 2px 5px 5px 2px; 
+    font-weight: bold;
+    background-color: #74edb1;    
+}
+
+.agrandarBoton{
+    width: 248px;      
+    height: 30px;
+    margin: 2px 5px 5px 2px; 
+    font-weight: bold;
+}
+
+.botonTotal{
+    width: 250px;
+    height: 20px;    
+}
+
+/*#divServicios{
+    overflow-y: scroll;
+    height: 190px;
+}*/
+
+#divSeguimiento{
+    overflow-y: scroll;
+    height: 350px;
+}
+
+
+#divTarifa, #divPrecios{        
+    height: 14em;
+}
+
+#texoDocumento{
+    float: left;
+}
+
+#cuerpoDescripcionServicio{
+    overflow-y: scroll;
+}
+
+#tablaDescripcionServicio td{
+    width: 30px;
+}
+
+#imagen_usapostal_cotizacion{
+    width: 250px;
+    height: 90px;  
+    border-radius: 10px;
+}
+
+#mostrarTrasabilidad{
+    height: 300px;    
+    overflow:scroll;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
+#contenedor-index{
+    height: 130px;
+}
+
+#mensajes{
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+}
+
+#divEncabezadoTabla{
+    height: 30px;
+}
+
+#cabezoteValorServicio{
+    overflow-x: scroll;
+    overflow-y: scroll;
+    height: 185px;
+    margin: 0 auto;
+}
+
+#cabezoteValorServicio2{    
+    height: 185px;
+    margin: 0 auto;
+}
+
+#confirmacionIngreso #divAgregado{
+    height: 60px;
+}
+
+.borde{
+    border: 0;
+}
+
+.altura{
+    height: 45em;
+    overflow-x: auto;
+}
+
+#trArriba1, #trArriba2 {
+    position: sticky;
+    top: 0; /* Puedes ajustar el valor de 'top' según el espaciado que necesites */
+    background-color: white; /* Esto es opcional pero ayuda a que el encabezado no se superponga visualmente */
+    z-index: 1; /* Asegura que las filas se mantengan por encima del resto del contenido */
+  }
+  
+  input[type="email"] {
+      border: 1px solid #ccc;
+      padding: 5px;
+    }
+
+    input[type="email"].valid {
+      border-color: green;
+    }
+
+    input[type="email"].invalid {
+      border-color: red;
+    }

@@ -1,0 +1,428 @@
+﻿Este archivo lo creo para poner aqui consultas que he necesitado crear a lo largo de la 
+creación del sistema.Además de anotaciones de mejoramiento y demás.
+
+El dia 201611041032 tuve que realizar un update a la tabla de guias pues hace falta 
+que el nombre de la empresa, empleado o conductor aparezca en dicha tabla.
+La consulta que utilice para ello fue:
+
+update guias INNER JOIN conductores 
+ON guias.identificacion=conductores.cond_identificacion 
+set guias.nombre=concat_ws(' ',conductores.cond_nombres,conductores.cond_apellidos) 
+WHERE conductores.estado='ACTIVO'
+
+El dia 20161101022 me pide la Sra Alba agregar la placa del vehiculo al pdf que 
+sale como anticipo y en cuenta de cobro.
+
+Para ello creo que voy a necesitar crear una tabla vehiculo y
+otra llamada conductor_vehiculo en la base de datos. En vehiculo voy a agregar los 
+datos del vehiculo, que para este caso solamente se necesita la placa y un campo estado. 
+La placa sería el id de dicha tabla. En la tabla conductor_vehiculo vinculare el 
+cond_id con el veh_placa, un campo de fecha y un campo estado. Aunque creo que no 
+lo voy a necesitar.
+
+También necesitaría modificar el programa que crea los conductores, pues ahora 
+cada conductor o propietario estaría vinculado a un vehículo; igualmente el 
+programa que crea los pdf, pues se añadiria el propietario del vehiculo a dicho
+pdf.
+
+El perfil del conductor, es decir si es propietario o conductor o ambos, lo puedo
+manejar desde la tabla perfiles que ya se encuentra creada. Para ello, tendría que
+modificar la tabla y agregar dos campos, uno llamado id_perfil1 y id_pefil2, donde
+en el primero estaría si es propietario y en el segundo estaria si es conductor.
+
+Además se debe añadir un programa para el manejo de los conductores vinculados
+a los vehículos, de manera que en un momento determinado se realize la gestión
+de las nuevas tablas y condiciones.
+
+<---Creación de la primera tabla vehículos--->
+CREATE TABLE vehiculo(
+    placa VARCHAR(6) NOT null PRIMARY KEY,
+    estado VARCHAR(10) NOT NULL);
+
+<---Creación de la tabla conductor_vehiculo--->
+
+CREATE TABLE conductor_vehiculo(
+    identificacion INT(11) NOT NULL,
+    placa VARCHAR(10) NOT NULL,
+    fecha DATETIME NOT NULL,
+    estado varchar(10) NOT NULL);
+
+<---Añadir campo perfil a la tabla conductores--->
+ALTER TABLE conductores 
+ADD perfil INT 
+AFTER estado;
+
+201610112015 Vamo'a camella' pue'
+
+Agrego:
+ case "COND":
+        header("Location: ../modulos/conductores.php?pj=".$id);
+        break; 
+a redirigir.php, 
+
+Crear un campo en la tabla conductores donde se relacione con la tabla
+conductores_vehiculos. Toca ejecutar la sentencia anterior.
+
+Ahora añado esta sentencia:
+INSERT INTO `usapostal_2`.`rol_boton` (`id_rol_boton`, `id_rol`, `id_boton`) VALUES (NULL, '6', '9');
+no esta saliendo el botón conductores en el rol sistemas.
+
+Vincular el botón de conductores a el rol ventas:
+INSERT INTO `usapostal_2`.`rol_boton` (`id_rol_boton`, `id_rol`, `id_boton`) VALUES (NULL, '4', '9');
+
+Para crear el botón de camiones:
+INSERT INTO `usapostal_2`.`botones` (`id_boton`, `valor`, `id`, `icono`) VALUES (NULL, 'VEH&Iacute;CULOS', 'btn_vehiculos', '../imagenes/camion_16.png');
+
+Para vincular el botón de VEHICULOS a gerente,ventas y sistemas.
+INSERT INTO `usapostal_2`.`rol_boton` (`id_rol_boton`, `id_rol`, `id_boton`) 
+VALUES (NULL, '4', '13'),(NULL, '6', '13'),(NULL, '2', '13');
+
+
+201611102018 Me comenta Cindy que cuando va a sumar la cuenta de cobro no lo 
+esta haciendo. Al verificar el por que encuentro que si no se coloca el porcentaje
+para la empresa en el id="porctCalculo" la suma y los datos puestos en las casillas
+para sumar los valores se ponen en cero. Para solucionar esto, agrego un condicional
+verificando que esta casilla tenga un valor entero que se va a usar para realizar
+el calculo de la suma.
+201611102035 Tengo unas funciones que estan evaluando lo anterior. Toca primero
+revisarlas.
+201611102043 Tenia muy repetida esta función var valorPorcentaje = $("#porctCalculo").val();
+La he borrado de donde no la necesitaba.
+201611102103 La validación ya la tenía pero no estaba funcionando "muy bien que digamos",
+jeje. Agregue el condicional al cargar la página y muestra un mensaje bastante notorio
+al principio. También agregue estas lineas
+
+<link href="../bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="../bootstrap-3.3.7-dist/js/jquery-3.1.1.min.js" type="text/javascript"></script>
+
+Esto con el fin de mejorar poco a poco la presentación.
+
+201611102142 Cambie la manera como se realiza el calculo del porcentaje. Ahora se hace
+a través de esta función.
+
+function cambiarPorcentaje(valor) {    
+    var id = "#" + valor.id;
+    $(id).val($(id).val()*$("#porctCalculo").val()/100);    
+}
+
+Es llamada en el evento onblur="cambiarPorcentaje(this)" del input text
+
+Igualmente en el modulo de Anticipos y agregarAnticipos, para 
+los js he creado una función que se llama crearEmpresa(obj,numero), esta función 
+recibe dos parametros, uno es el objeto Json que entrega la consulta del nit, y el
+otro es el número de casilla donde se coloca el nit de la empresa.
+
+function crearEmpresa(obj, numero) {
+    var empresa = "#nombEmpresa" + numero;
+    if (obj === false) {
+        if (confirm('No se registran datos para la identificacion del cliente\nDesea crear el cliente?')) {
+            $(location).attr('href', './empresas.php');
+        } else {
+            $("#idCliente").focus();
+        }
+    } else {
+        $(empresa).val(obj.cli_nombre);
+    }
+}
+
+Tuve que agregar una en el css una condición que permita al <input type="number" porctCalculo /> 
+dejar un tamaño de 20px. Cambie el type="text" por un type="number"
+
+#porctCalculo{
+    width: 20px;
+}
+
+La verificación de la empresa en la cuenta de cobro también la mejore. Quite demasiado
+código que no era necesario y lo deje con esta sola función:
+
+function verificarEmpresa(valor) {
+    
+    numero = valor.id;
+    numero = numero.substr(6, 7);    
+    id = "#" + valor.id;
+    nombEmpresa = "#nombEmpresa" + numero;
+    ol = "#ol" + numero;
+    
+    $.ajax({
+        url: "../trafico/retornarNombreCliente.php",
+        data: {'nit': $(id).val()},
+        type: "POST",
+        success: function (data) {            
+            var obj = JSON.parse(data);            
+            if (obj === false) {
+                if (confirm('No se registran datos para la identificacion del cliente\nDesea crear el cliente?')) {
+                    $(location).attr('href', './empresas.php');
+                } else {
+                    $("#idCliente").focus();
+                }
+            } else {
+                $(nombEmpresa).val(obj.cli_nombre);
+                $(ol).val('1');
+            }
+        }
+    });
+}
+
+201611112213 Tuve que mejorar la presentación del panel principal. La puedo hacer mejor 
+pero tengo que dormir.jeje
+
+20161151515 Vamos a trabajar en las tabla conductor, la idea es probar cuando un conductor
+no esta, lo debe crear y continuar los procesos de CREAR ANTICIPO,AGREGAR ANTICIPO, CUENTA DE 
+COBRO y CONDUCTORES, pero primero creo que debo crear la tabla de VEHICULO.
+
+Al modificar la tabla de CONDUCTORES con el campo null, (por ahora) se pueden hacer
+sin problema la creación de ANTICIPOS, el AGREGAR ANTICIPO y la CUENTA DE COBRO.
+
+201611151529 Base de datos modificada en el servidor.
+
+201611151532 Antes de realizar uno de los documentos, se deberá consultar en la lista
+de conductores si tiene una relación con un vehiculo. Si la tiene se continuara de 
+manera normal. Si no entonces se debe verificar en la lista de conductores cual 
+sera el vehiculo a asociar. Si no existe el vehiculo se deberá crear dicho vehiculo
+para después asociar el vehiculo al conductor y cumpliendo estos pasos crear 
+el ANTICIPO, AGREGARLO o crear la CUENTA DE COBRO.
+
+201611151645 He agregado la siguiente función en la clase conductores, que retorna
+la placa asociada al conductor que se esta seleccionando, siempre y cuando se 
+encuentre ACTIVA.
+
+    public function retornarPlacaConductor($identificacion) {
+        try {
+            $this->con = new Conexion();
+            $this->consulta = "select placa from conductor_vehiculo "
+                    . " where identificacion=" . $identificacion . " and estado='ACTIVO';";
+            $this->prepare = $this->con->prepare($this->consulta);
+            $this->prepare->execute();
+            $this->arreglo = $this->prepare->fetchAll();
+            $this->con = null;
+            return $this->arreglo;
+        } catch (PDOException $exc) {
+            echo $exc->getMessage();
+        }
+    }
+
+Igualmente en el js_index.js en el evento change de la lista de conductores he
+agregado una llamada a través de AJAX al archivo retornarPlacaConductor.php que
+realiza el retorno en formato json_enconde de la respuesta de la función anterior.
+
+    $("#idConductor").change(function () {
+        var valor = $("#idConductor").val();
+        if (valor === "0") {
+            $("#txt_documentocliente").val("");
+        } else {
+            $("#txt_documentocliente").val($("#idConductor").val());
+            //20161115 Verificar si el conductor tiene asociada una placa 
+            //activa
+            $.ajax({
+                url: "../trafico/retornarPlacaConductor.php",
+                method: "POST",
+                data: {"identificacion": valor},
+                success: function (data) {
+                    var obj = jQuery.parseJSON(data);
+                    if (obj.length === 0) {
+                        if (confirm('No hay placa asociada al conductor\n¿Desea asociar o modificar alguna?')) {
+                            window.location.href = "../modulos/conductores.php";
+                        }
+                    } else {
+                        $("#txt_placa").val(obj[0].placa);
+                    }
+                },
+                error: function () {
+                    $('#mensajes').html("Se esta generando un erro al consultar la placa del conductor con AJAX, por favor informe al desarrollador del produclto");
+                }
+            });
+        }
+    });
+
+Esta función lo que hace es que si el conductor no tiene asociada una placa, le pregunta
+al operador del sistema si desea asociar alguna.
+
+201616111933 He creado una clase junto a un controlador llamado vehiculo, el contro-
+lador esta en la carpeta llamada trafico. Ello lo termine ayer.
+
+201616112203 He modificado el controlador llamado Conductor y quitado un archivo 
+llamado crearConductor.php, pues no lo considero necesario. El evento para $(#cedulaConductor).focusout();
+lo he adaptado al nuevo cambio añadiendo un parámetro de envío en AJAX que se llama caso=1, cuando
+llega al controlador entonces llama a la función 
+
+$conductores->consultarConductor($_POST["cedulaConductor"]);
+
+a la que se le pasa como parámetro la cédula del conductor.
+
+La función es esta:
+
+public function consultarConductor($identificacion) {
+        try {
+            $this->con = new Conexion();
+            $this->consulta = "select c.cond_id,c.cond_identificacion,c.cond_nombres,c.cond_apellidos,c.cond_direccion,
+c.cond_telefono,c.municipios_mun_id,c.estado as estadoConductor,c.perfil,cv.placa,cv.estado as estadoRelacion
+from conductores as c
+inner join conductor_vehiculo as cv
+on c.cond_identificacion=cv.identificacion
+where c.cond_identificacion=" . $identificacion . ";";
+            $this->prepare = $this->con->prepare($this->consulta);
+            $this->prepare->execute();
+            $this->arreglo = $this->prepare->fetch(PDO::FETCH_ASSOC);
+            if (!$this->arreglo) {
+                $this->consulta = "select * from conductores where cond_identificacion=" . $identificacion . " and estado='ACTIVO';";
+                $this->prepare = $this->con->prepare($this->consulta);
+                $this->prepare->execute();
+                $this->arreglo = $this->prepare->fetch(PDO::FETCH_ASSOC);
+            }
+            echo json_encode($this->arreglo);
+            $this->con = null;
+        } catch (PDOException $exc) {
+            echo $exc->getMessage();
+        }
+    }
+
+En general lo que hace primero es buscar si existe un conductor relacionado con un vehiculo, 
+si no entonces solo trae los datos del conductor siempre y cuando este se encuentre
+activo. 
+
+Pendiente continuar con la modificación de los datos del conductor.
+
+201611241011 
+No había incluido en la tabla roles a PROPIETARIO y CONDUCTOR. 
+
+Este fin de semana que modificar la tabla valoresanticipos, así:
+
+ALTER TABLE valoresanticipos
+ADD COLUMN valorservicio int AFTER val_valorAdelanto;
+
+Eso me obliga a verificar todos las sentencias donde interviene un insert en 
+dicha tabla y verificar que todo continue trabajando de manera normal
+
+201612071034 
+Cambiar la tabla valoresanticipos asi:
+ALTER TABLE `valoresanticipos` ADD `idCondRel` INT NOT NULL AFTER `conductores_cond_id`;
+Este campo conserva el conductor al que se le generó el anticipo.
+
+93436662
+
+SELECT c.cond_id, c.cond_identificacion, c.cond_nombres, c.cond_apellidos, c.cond_direccion, c.cond_telefono, c.municipios_mun_id, c.estado AS estadoConductor, c.perfil, cv.placa, cv.estado AS estadoRelacion
+FROM conductores AS c
+INNER JOIN conductor_vehiculo AS cv ON c.cond_identificacion = cv.identificacion
+WHERE c.cond_identificacion =93436916
+AND cv.estado = 'ACTIVO'
+AND c.estado = 'ACTIVO'
+LIMIT 0 , 30
+
+ mount -t ntfs-3g /dev/sdd1 /home/eliecer/wilmer/usb
+
+201903261720
+La ultima actualización hasta el momento ha probocado los siguientes cambios:
+ - borrar /trafico/eliminarServicioVariasGuias.php
+ - cambiar /clases/servicios.php
+           /trafico/Servicios.php
+           /js/js_serviciosVarios.js
+           /modulos/serviciosVarios.php
+
+201904152112
+Ultimos cambios
+- cambiar   /js/js_administrarServicios.js
+            /clases/anticipos.php
+            /trafico/crearPosibleAnticipo.php
+            /clases/servicios.php
+            /trafico/modificarServicioDos.php
+            /js/js_serviciosVarios.js
+
+201904161219
+No hay necesidad de esos cambios. El problema surgio con un conductor
+Continuo con los módulos nuevos.
+
+201911131650
+Modificar tabla servicio_guias
+ALTER TABLE `servicio_guias` ADD `planilla` VARCHAR(20) NOT NULL COMMENT 'Numero de planilla del cliente para relación de servicios' AFTER `numeroGuia`;
+201911141051
+Modificar tabla botones 
+update botones set valor='DETALLE SERVICIOS',id='btn_detalleservicios',title='Genera un detallado de servicios para un cliente especifico' where id_boton=11;
+ALTER TABLE `botones` ADD `clsboostrap` VARCHAR(50) NOT NULL COMMENT 'Son las clases para los colores de los botones' AFTER `id`;
+
+-- phpMyAdmin SQL Dump
+-- version 4.6.6deb5
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost:3306
+-- Generation Time: Nov 15, 2019 at 05:22 PM
+-- Server version: 5.7.27-0ubuntu0.18.04.1
+-- PHP Version: 7.2.24-0ubuntu0.18.04.1
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `usapostal4`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `botones`
+--
+
+CREATE TABLE `botones` (
+  `id_boton` int(11) NOT NULL,
+  `valor` varchar(100) DEFAULT NULL,
+  `id` varchar(100) DEFAULT NULL,
+  `clsboostrap` varchar(50) NOT NULL COMMENT 'Son las clases para los colores de los botones',
+  `icono` varchar(50) DEFAULT NULL,
+  `title` varchar(200) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `botones`
+--
+
+INSERT INTO `botones` (`id_boton`, `valor`, `id`, `clsboostrap`, `icono`, `title`) VALUES
+(1, 'COTIZACI&Oacute;N', 'btn_cotizacion', 'btn btn-secondary btn-lg', '../imagenes/document_16.png', 'Genera documento de cotizaci&oacute;n de servicio para el cliente seleccionado, por favor seleccionelo de la Lista de Clientes'),
+(2, 'NOTA CREDITO', 'btn_notacredito', 'btn btn-secondary btn-lg', '../imagenes/realizar-tramite_16.png', 'Genera documento de Nota Cr&eacute;dito para el cliente seleccionado, por favor seleccionelo de la Lista de Clientes'),
+(3, 'CREAR ANTICIPO', 'btn_anticipos', 'btn btn-secondary btn-lg', '../imagenes/bundle_16.ico', 'Muestra los anticipos generados a propietario, selecione uno de la Lista de Propietarios'),
+(4, 'CUENTA DE COBRO', 'btn_cuentadecobro', 'btn btn-secondary btn-lg', '../imagenes/cuentaCobro_16.ico', 'Genera el documento de Cuenta de Cobro para el propietario. Seleccione uno de la lista de Propietarios'),
+(5, 'GESTIONAR COTIZACIONES', 'btn_gestionarcotizaciones', 'btn btn-secondary btn-lg', '../imagenes/cotizaciones_16.jpg', 'M&oacute;dulo en construcci&oacute;n'),
+(6, 'SALIR', 'btn_salir', 'btn btn-secondary btn-lg', '../imagenes/salir.png', 'Salir de la aplicaci&oacute;n'),
+(7, 'EMPLEADOS', 'btn_empleados', 'btn btn-secondary btn-lg', '../imagenes/empleados_16.jpg', 'Gesti&oacute;n de Empelados'),
+(8, 'CLIENTES', 'btn_clientes', 'btn btn-secondary btn-lg', '../imagenes/empresa_16.png', 'Gestiona los clientes de USAPOSTAL'),
+(9, 'CONDUCTORES', 'btn_conductores', 'btn btn-secondary btn-lg', '../imagenes/user_16.png', 'Gestiona los conductores y propietarios afiliados y la relaci&oacute;n con veh&iacute;culo'),
+(10, 'VER ANTICIPOS', 'btn_agregarAnticipo', 'btn btn-secondary btn-lg', '../imagenes/buy_16.png', 'Muestra los anticipos generados a propietario, selecione uno de la Lista de Propietarios'),
+(11, 'DETALLE SERVICIOS', 'btn_detalleservicios', 'btn btn-secondary btn-lg', '../imagenes/wallet_16.png', 'Genera un detallado de servicios para un cliente especifico'),
+(12, 'PROCESOS GUIAS', 'btn_procesosGuias', 'btn btn-secondary btn-lg', '../imagenes/pencil_16.png', 'M&oacute;dulo en construcci&oacute;n'),
+(13, 'VEH&Iacute;CULOS', 'btn_vehiculos', 'btn btn-secondary btn-lg', '../imagenes/camion_16.png', 'Gestiona los veh&iacute;culos afialiados a USAPOSTAL'),
+(14, 'SERVICIOS', 'btn_servicios', 'btn btn-secondary btn-lg', '../imagenes/placa.png', 'Crea, busca, edita y gestiona los servicios prestados por la empresa'),
+(15, 'CONSULTAS', 'btn_consultas', 'btn btn-secondary btn-lg', '../imagenes/cotizaciones_16.jpg', 'Generar consultas de servicios de acuerdo a opciones establecidas'),
+(16, 'ROLES', 'brn_roles', 'btn btn-secondary btn-lg', '../imagenes/roles_16.png', 'Se muestran los roles del sistema y los botones asignados a dichos roles'),
+(17, 'CLIENTES', 'btin_clientes', 'btn btn-secondary btn-lg', '../imagenes/clientes_16.jpg', 'Gesti&oacute;n de Clientes'),
+(18, 'AGENDA', 'btn_agenda', 'btn btn-secondary btn-lg', '../imagenes/calendar_16.png', 'Agendar eventos y realizar gesti&oacute;n');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `botones`
+--
+ALTER TABLE `botones`
+  ADD PRIMARY KEY (`id_boton`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `botones`
+--
+ALTER TABLE `botones`
+  MODIFY `id_boton` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+insert into botones values (null, 'ADMINISTRAR', 'btn_administrar', 'btn btn-secondary btn-lg', '../imagenes/calendar_16.png', 'Administraci&oacute;n de servicios')
+INSERT INTO `rol_boton` (`id_rol_boton`, `id_rol`, `id_boton`, `estado`) VALUES (NULL, '6', '19', '1'), (NULL, '2', '19', '1');
+
