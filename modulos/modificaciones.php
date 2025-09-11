@@ -15,7 +15,7 @@ if (is_null($_SESSION["rol_id"])) {
         <head>
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
             <title>Modificaciones y Cancelaciones</title>
-            <link rel="icon" href="../imagenes/favicon.ico">
+            <link rel="icon" href="../imagenes/camion256.png">
             <link href="../css/css2.css" rel="stylesheet" type="text/css" />
             <link href="../bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
             <script src="../bootstrap-3.3.7-dist/js/jquery-3.1.1.min.js" type="text/javascript"></script>            

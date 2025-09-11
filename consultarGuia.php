@@ -13,7 +13,7 @@ include_once 'cssguiahtml/CL_conexion2.php';
 $headPagina = ' <html>
 <head>
     <title>Seguimientos</title>
-    <link rel="icon" href="../imagenes/favicon.ico">
+    <link rel="icon" href="../imagenes/camion256.png">
     <link rel="stylesheet" href="cssguiahtml/consulta.css">
     <script src="cssguiahtml/bootstrap.js">
     </script>';

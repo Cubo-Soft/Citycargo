@@ -17,7 +17,7 @@ if (is_null($_SESSION["rol_id"])) {
         <head>
             <meta charset="UTF-8">
             <title>Administraci&oacute;n cotizaciones</title>
-            <link rel="icon" href="../imagenes/iconos/favicon.ico">
+            <link rel="icon" href="../imagenes/camion256.png">
             <script src="../js/accionesenprograma.js" type="text/javascript"></script>
         </head>
         <body>

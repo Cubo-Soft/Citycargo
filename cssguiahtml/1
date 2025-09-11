@@ -13,7 +13,7 @@ include_once 'CL_conexion2.php';
 $headPagina = ' <html>
 <head>
     <title>Seguimientos</title>
-    <link rel="icon" href="../imagenes/favicon.ico">
+    <link rel="icon" href="../imagenes/camion256.png">
     <link rel="stylesheet" href="consulta.css">
     <script src="bootstrap.js">
     </script>';
