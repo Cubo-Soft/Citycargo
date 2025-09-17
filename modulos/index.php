@@ -81,7 +81,7 @@ if (is_null($_SESSION["rol_id"])) {
                                 }
                             }
                             ?>      
-                           <div class="alert alert-success col-lg-<?= $collg ?>" id="DivPorRevisar">
+                        <div class="alert alert-success col-lg-<?= $collg ?>" id="DivPorRevisar">
                                 Servicios por revisar: 
                                 <a class='btn btn-success btn-sm' id='porCancelar' href='../modulos/serviciosporcancelar.php?novedad=2' target="_blank">
                                     <strong>

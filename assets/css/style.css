@@ -1,0 +1,48 @@
+
+/* Color corporativo */
+:root {
+    --citycargo-green: rgb(146, 189, 130);
+    --citycargo-green-dark: rgb(195, 211, 195);
+    --citycargo-green-light: rgb(97, 133, 97);
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--citycargo-green) !important;
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link,
+.navbar .navbar-text {
+    color: #fff !important;
+}
+
+.navbar .nav-link:hover {
+    color: var(--citycargo-green-light) !important;
+}
+
+/* Sidebar */
+.sidenav {
+    background-color: var(--citycargo-green) !important;
+}
+
+.sidenav .nav-link {
+    color: #fff !important;
+    font-weight: 500;
+}
+
+.sidenav .nav-link:hover {
+    background-color: var(--citycargo-green-dark) !important;
+    border-radius: 2rem;
+}
+
+
+
+/* Ajustes al scrollbar del sidebar */
+#sidenav-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+#sidenav-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--citycargo-green-dark);
+    border-radius: 3px;
+}

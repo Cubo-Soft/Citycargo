@@ -54,8 +54,8 @@ switch ($decicion) {
         header("Location: ../modulos/modulosempleados.php");
         break;
 
-    case "MANTENIMIENTO":
-        header("Location: ../modulos/maintenanceModel.php");
+    case "MANTENIMIENTO E INVENTARIO":
+        header("Location: ../controllers/maintenanceController.php");
         break;
 
     case "CLIENTES":
