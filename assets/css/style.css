@@ -1,4 +1,3 @@
-
 /* Color corporativo */
 :root {
     --citycargo-green: rgb(146, 189, 130);
@@ -42,7 +41,35 @@
 #sidenav-scrollbar::-webkit-scrollbar {
     width: 6px;
 }
+
 #sidenav-scrollbar::-webkit-scrollbar-thumb {
     background-color: var(--citycargo-green-dark);
     border-radius: 3px;
+}
+
+
+.bg-image-curved {
+    background-image: url('/Citycargo/assets/img/curved-images/white-curved.jpg') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    min-height: 100vh !important;
+    position: relative !important;
+}
+
+.bg-image-curved::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.75); /* capa translúcida */
+    border-radius: inherit;
+    z-index: 0;
+}
+
+.bg-image-curved > * {
+    position: relative;
+    z-index: 1;
 }
