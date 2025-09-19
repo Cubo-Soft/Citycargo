@@ -9,7 +9,7 @@ if (!isset($_SESSION["rol_id"])) {
 include '../views/components/layout/head.php';
 ?>
 
-<body class="g-sidenav-show bg-gray-200">
+<body class="g-sidenav-show bg-gray-200 bg-image-curved">
     <?php include '../views/components/sidebar.php'; ?>
 
     <main class="main-content border-radius-lg">

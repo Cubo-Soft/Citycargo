@@ -4,7 +4,7 @@
 
     <div class="sidenav-header">
         <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
-            aria-hidden="true" id="iconSidenav"></i>
+            aria-hidden="true" id=""></i>
         <a class="navbar-brand m-0" href="log" target="_blank">
             <img src="../imagenes/camion256.png" class="navbar-brand-img h-100" alt="main_logo">
             <span class="ms-3 font-weight-bold text-dark">CityCargo</span>
@@ -43,7 +43,7 @@
                             </g>
                         </svg>
                     </div>
-                    <span class="nav-link-text ms-1 text-dark">Mantenimiento</span>
+                    <span class="nav-link-text ms-1 text-dark text-sm">Mantenimiento</span>
                 </a>
             </li>
 
@@ -70,7 +70,7 @@
                             </g>
                         </svg>
                     </div>
-                    <span class="nav-link-text ms-1 text-dark">Inventario</span>
+                    <span class="nav-link-text ms-1 text-dark text-sm">Inventario</span>
                 </a>
             </li>
 
@@ -250,6 +250,7 @@
             </li> -->
         </ul>
     </div>
+
     <!-- <div class="sidenav-footer mx-3 ">
         <div class="card card-background shadow-none card-background-mask-secondary" id="sidenavCard">
             <div class="full-background" style="background-image: url('../assets/img/curved-images/white-curved.jpg')">
