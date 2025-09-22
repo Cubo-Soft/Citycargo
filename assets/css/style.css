@@ -24,7 +24,7 @@
 /* Sidebar */
 .sidenav {
     background-color: var(--citycargo-green) !important;
-    z-index: 1050 !important; /* mayor que navbar y main */
+    z-index: 1030 !important; /* mayor que navbar y main */
 }
 
 .sidenav .nav-link {
