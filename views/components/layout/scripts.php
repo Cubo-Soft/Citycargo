@@ -136,3 +136,5 @@
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 <!-- Control Center for Soft Dashboard -->
 <script src="../assets/js/soft-ui-dashboard.min.js?v=1.1.0"></script>
+<!-- Scripts personalizados! -->
+<script src="../../assets/js/maintenance.js"></script>
