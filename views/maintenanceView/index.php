@@ -17,13 +17,13 @@
 <!-- <ul class="navbar-nav  justify-content-end">
     <li class="nav-item d-flex align-items-center">
         <a class="btn btn-success btn-sm mb-0 me-3" target="_blank"
-            href="">Nueva Orden</a>
+            href="">Nuevo Mantenimiento</a>
     </li>
 </ul> -->
 
 <div class="row my-4">
     <!-- Tabla 1 -->
-    <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
+    <div class="col-lg-12 col-md-6 mb-md-0 mb-4">
         <div class="row">
             <div class="col-12">
                 <div class="card mb-4">
@@ -33,68 +33,86 @@
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
-                            <table class="table align-items-center mb-0">
-                                <thead>
-                                    <tr>
-                                        <th
-                                            class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">
-                                            #</th>
-                                        <th
-                                            class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">
-                                            Factura</th>
-                                        <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Placa</th>
-                                        <th
-                                            class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-2">
-                                            Empresa Prestadora</th>
-                                        <!-- <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Estado</th> -->
-                                        <th
-                                            class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Fecha</th>
-                                        <!-- <th
+                            <div class="table-container">
+                                <table class="table align-items-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th
+                                                class="text-uppercase text-secondary text-xs font-weight-bolder opacity- ps-2">
+                                                #</th>
+                                            <th
+                                                class="text-uppercase text-secondary text-xs font-weight-bolder opacity- ps-2">
+                                                Factura</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-">
+                                                Placa</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-">
+                                                Empresa Prestadora</th>
+                                            <!-- <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Estado</th> -->
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-">
+                                                Fecha</th>
+                                            <!-- <th
                                             class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                             Conductor</th> -->
-                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Valor</th>
-                                        <th
-                                            class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Servicio Realizado</th>
-                                        <th class="text-secondary opacity-7"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (empty($mantenimientos)): ?>
-                                        <tr>
-                                            <td colspan="9" class="text-center py-4">No hay registros de mantenimientos.
-                                            </td>
+                                            <th
+                                                class="text-uppercase text-secondary text-xs font-weight-bolder opacity-">
+                                                Valor</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-">
+                                                Servicio Realizado</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-">
+                                                Observaciones</th>
+                                            <th class="text-secondary opacity-"></th>
                                         </tr>
-                                    <?php else: ?>
-                                        <?php foreach ($mantenimientos as $index => $mant): ?>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        // Ordenar mantenimientos por fecha (más reciente primero)
+                                        usort($mantenimientos, function ($a, $b) {
+                                            return strtotime($b['fecha']) - strtotime($a['fecha']); // Descendente
+                                        });
+                                        ?>
+
+                                        <?php if (empty($mantenimientos)): ?>
                                             <tr>
-                                                <td class="text-xs font-weight-bold"><?= $index + 1 ?></td>
-                                                <td class="text-sm"><?= htmlspecialchars($mant['factura']) ?></td>
-                                                <td class="text-sm text-center"><?= htmlspecialchars($mant['placa']) ?></td>
-                                                <td class="text-sm text-center"><?= htmlspecialchars($mant['empresa']) ?></td>
-                                                <td class="text-sm text-center"><?= date('d/m/Y', strtotime($mant['fecha'])) ?>
-                                                </td>
-                                                <!-- <td class="text-sm"><?= htmlspecialchars($mant['conductor']) ?></td> -->
-                                                <td class="text-sm text-end font-weight-bold">
-                                                    $<?= number_format($mant['valor'], 0, ',', '.') ?></td>
-                                                <td class="text-sm text-center"><?= htmlspecialchars($mant['servicio']) ?></td>
-                                                <td class="text-sm text-center"><?= htmlspecialchars($mant['observaciones']) ?></td>
-                                                <td class="align-middle">
-                                                    <a href="javascript:;"
-                                                        class="text-secondary font-weight-bold text-xs btn-ver-detalle"
-                                                        data-id="<?= $mant['id'] ?>" data-bs-toggle="modal"
-                                                        data-bs-target="#modalDetail">
-                                                        Ver
-                                                    </a>
+                                                <td colspan="9" class="text-center py-4">No hay registros de mantenimientos.
                                                 </td>
                                             </tr>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
+                                        <?php else: ?>
+                                            <?php foreach ($mantenimientos as $index => $mant): ?>
+                                                <tr>
+                                                    <td class="text-xs font-weight-bold"><?= $index + 1 ?></td>
+                                                    <td class="text-sm"><?= htmlspecialchars($mant['factura']) ?></td>
+                                                    <td class="text-sm text-center"><?= htmlspecialchars($mant['placa']) ?></td>
+                                                    <td class="text-sm text-center"><?= htmlspecialchars($mant['empresa']) ?>
+                                                    </td>
+                                                    <td class="text-sm text-center">
+                                                        <?= date('d/m/Y', strtotime($mant['fecha'])) ?>
+                                                    </td>
+                                                    <td class="text-sm text-end font-weight-bold">
+                                                        $<?= number_format($mant['valor'], 0, ',', '.') ?></td>
+                                                    <td class="text-sm text-center"><?= htmlspecialchars($mant['servicio']) ?>
+                                                    </td>
+                                                    <td class="text-sm text-center">
+                                                        <?= htmlspecialchars($mant['observaciones']) ?>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <a href="javascript:;"
+                                                            class="text-secondary font-weight-bolder text-xs btn-ver-detalle"
+                                                            data-id="<?= $mant['id'] ?>" data-bs-toggle="modal"
+                                                            data-bs-target="#modalDetail">
+                                                            Ver
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -102,42 +120,79 @@
         </div>
     </div>
 
-    <!-- 2a Tabla: Resumen -->
-    <div class="col-lg-4">
-        <div class="card p-3 mb-3">
-            <strong>Resumen General</strong>
-            <hr class="horizontal dark mt-2">
-            <div class="mt-3">
-                <div class="d-flex justify-content-between">
-                    <div>Total de Mantenimientos</div>
-                    <div><span class="fw-bold"><?= $totalMantenimientos ?></span></div>
+
+    <div class="col-lg-12 mt-2">
+        <div class="row">
+            <!-- Próximas Revisiones -->
+            <div class="col-lg-6 col-md-12 mb-3">
+                <div class="card p-3 h-100">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>Próximas Revisiones</strong>
+                        <a href="#" class="text-secondary text-xs" data-bs-toggle="modal"
+                            data-bs-target="#modalNuevaRevision">
+                            <i class="bi bi-pencil"></i> Agregar
+                        </a>
+                    </div>
+                    <hr class="horizontal dark mt-2">
+                    <ul class="mt-3 list-unstyled small-muted">
+                        <?php if (empty($ultimosServicios)): ?>
+                            <li class="mb-2">No hay revisiones programadas.</li>
+                        <?php else: ?>
+                            <?php foreach ($ultimosServicios as $serv): ?>
+                                <?php
+                                $fecha = new DateTime($serv['fecha_programada']);
+                                $hoy = new DateTime();
+                                $dias = $fecha->diff($hoy)->days;
+
+                                // Clase según urgencia
+                                if ($dias == 0) {
+                                    $clase = 'text-danger'; // Hoy → ROJO
+                                } elseif ($dias == 1) {
+                                    $clase = 'text-warning'; // Mañana → AMARILLO
+                                } else {
+                                    $clase = ''; // Normal → color por defecto
+                                }
+                                ?>
+
+                                <li class="mb-2">
+                                    <i class="bi bi-truck me-2"></i>
+                                    <a href="#modalEditarRevision" class="text-secondary font-weight-bolder text-sm opacity-"
+                                        onclick="event.preventDefault(); modalEditarRevision(<?= $serv['id_mantenimiento'] ?>);">
+                                        <?= htmlspecialchars($serv['placa']) ?> →
+                                        <?= htmlspecialchars($serv['servicio']) ?>
+                                    </a>
+                                    <small class="<?= $clase ?>">
+                                        Km: <?= number_format($serv['kilometraje_programado'], 0, ',', '.') ?> —
+                                        el <?= date('d/m/Y', strtotime($serv['fecha_programada'])) ?>
+                                    </small>
+                                </li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </ul>
                 </div>
-                <div class="d-flex justify-content-between">
-                    <div>Valor Total Pagado</div>
-                    <div><span class="fw-bold">$<?= $valorTotal ?></span></div>
+            </div>
+
+            <!-- Resumen Mensual -->
+            <div class="col-lg-6 col-md-12 mb-3">
+                <div class="card p-3">
+                    <strong>Resumen Mensual</strong>
+                    <hr class="horizontal dark mt-2">
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between">
+                            <div>Total de Mantenimientos</div>
+                            <div><span class="fw-bold"><?= $totalMantenimientos ?></span></div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <div>Valor Total Pagado</div>
+                            <div><span class="fw-bold">$<?= $valorTotal ?></span></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div class="card p-3">
-            <strong>Próximas Revisiones</strong>
-            <hr class="horizontal dark mt-2">
-            <ul class="mt-3 list-unstyled small-muted">
-                <?php if (empty($ultimosServicios)): ?>
-                    <li class="mb-2">No hay revisiones programadas.</li>
-                <?php else: ?>
-                    <?php foreach ($ultimosServicios as $serv): ?>
-                        <li class="mb-2">
-                            <i class="bi bi-truck"></i>
-                            <?= htmlspecialchars($serv['placa']) ?> →
-                            <?= htmlspecialchars($serv['servicio']) ?>
-                            <span class="text-muted">el <?= date('d/m/Y', strtotime($serv['fecha_programada'])) ?></span>
-                        </li>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </ul>
-        </div>
     </div>
+
+
 </div>
 
 <!-- Formulario Rápido -->
@@ -145,7 +200,7 @@
     <strong>Crear Mantenimiento Rápido</strong>
     <hr class="horizontal dark mt-2">
     <form id="quickForm" class="row g-2 mt-2">
-        <div class="col-md-4"><input class="form-control" name="placa" placeholder="Placa (ej. UUU-123)" required></div>
+        <div class="col-md-4"><input class="form-control" name="placa" placeholder="Placa (ej. UUU123)" required></div>
         <div class="col-md-4">
             <select class="form-select" name="id_prestador" required>
                 <option value="">Seleccionar empresa</option>
@@ -172,7 +227,9 @@
 </div>
 
 
-<!-- Modal: Detail -->
+<!-- Modal Nueva Revision-->
+
+<!-- Modal: Detalle Mantenimiento-->
 <div class="modal fade" id="modalDetail" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -184,15 +241,15 @@
                 <div id="detailContent"><!-- contenido dinámico --></div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-success" data-bs-dismiss="modal">Cerrar</button>
-                <!-- <button class="btn btn-success" id="">Ver Inventario</button> -->
+                <button class="btn btn-success" id="btn-edit-maintenance" data-id="">Editar</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
 </div>
 
 
-<!-- Modal: New -->
+<!-- Modal: Nuevo mantenimiento -->
 <div class="modal fade" id="modalNew" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -204,8 +261,8 @@
                 <form id="formNew">
                     <div class="row g-2">
                         <div class="col-md-6">
-                            <label class="form-label">Placa</label>
-                            <input class="form-control" name="placa" placeholder="Placa (ej. UUU-123)" required>
+                            <label for="placa" class="form-label">Placa</label>
+                            <input id="placa" class="form-control" name="placa" placeholder="Placa (ej. UUU123)" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Empresa</label>
@@ -240,7 +297,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Kilometraje</label>
-                            <input class="form-control" name="kilometraje" placeholder="120000">
+                            <input class="form-control" name="kilometraje" placeholder="120000" required>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Observaciones</label>
@@ -253,6 +310,60 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button class="btn btn-success" id="saveNew">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nueva Revision-->
+<div class="modal fade" id="modalNuevaRevision" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalNuevaRevisionLabel">
+    <div class="modal-dialog  modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalNuevaRevisionLabel">Nueva Revisión</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="">
+                    <div class="mb-3">
+                        <label for="placa" class="form-label">Placa</label>
+                        <input id="placa" class="form-control" name="placa" placeholder="Placa (ej. UUU123)" required>
+                    </div>
+                    <div class="mb-3">
+                        <select class="form-select" name="id_tipo_manteni" required>
+                            <option value="">Seleccionar servicio</option>
+                            <?php foreach ($tiposMantenimiento as $t): ?>
+                                <option value="<?= $t['id_tipo_manteni'] ?>"><?= htmlspecialchars($t['nombre']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha" class="form-label">Fecha Programada</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha_programada"
+                            value="<?= date('Y-m-d') ?>">
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-success" id="">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Revision-->
+<div class="modal fade" id="modalEditarRevision" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalEditarRevisionLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarRevisionLabel">Editar Revisión</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="modalContenido">Cargando...</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>

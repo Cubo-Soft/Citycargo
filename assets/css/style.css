@@ -8,7 +8,7 @@
 /* Navbar */
 .navbar {
     background-color: var(--citycargo-green) !important;
-    z-index: 1030; /* asegura que quede arriba */
+    z-index: 1030;  /* asegura que quede arriba */
 }
 
 .navbar .navbar-brand,
@@ -22,10 +22,10 @@
 }
 
 /* Sidebar */
-.sidenav {
+/* .sidenav {
     background-color: var(--citycargo-green) !important;
-    z-index: 1030 !important; /* mayor que navbar y main */
-}
+    z-index: 1030 !important;
+} */
 
 .sidenav .nav-link {
     color: #fff !important;
@@ -66,12 +66,13 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.75); /* capa translúcida */
+    background: rgba(255, 255, 255, 0.75);
+    /* capa translúcida */
     border-radius: inherit;
     z-index: 1;
 }
 
-.bg-image-curved > * {
+.bg-image-curved>* {
     position: relative;
     z-index: 1;
 }
@@ -113,8 +114,7 @@
 .btn-success {
     --bs-btn-color: #000;
     --bs-btn-bg: rgb(146, 189, 130);
-    --bs-btn-border-color: rgb(146, 189, 130)
-    --bs-btn-hover-color: #000;
+    --bs-btn-border-color: rgb(146, 189, 130) --bs-btn-hover-color: #000;
     --bs-btn-hover-bg: rgb(97, 133, 97);
     --bs-btn-hover-border-color: rgb(56.1, 202.8, 110.1);
     --bs-btn-focus-shadow-rgb: 29, 167, 80;
@@ -401,4 +401,32 @@
 .btn.bg-gradient-success:hover {
     background-color: rgb(97, 133, 97);
     border-color: rgb(97, 133, 97)
+}
+
+/* Forzar que cualquier swal quede por encima del sidebar/main-content */
+.swal2-container {
+    position: fixed !important;
+    z-index: 99999 !important;
+    /* más alto que sidebar y modal */
+    inset: 0 !important;
+    pointer-events: none;
+}
+
+.swal2-container .swal2-popup {
+    pointer-events: auto !important;
+}
+
+.table-container {
+    max-height: 350px;    /* límite de alto, unas 5-6 filas */
+    overflow-y: auto;    /* scroll vertical */
+    overflow-x: auto;    /* scroll horizontal habilitado */
+    width: 100%;    /* que use todo el ancho disponible */
+}
+
+/*  fijar encabezado para que no se pierda al hacer scroll */
+.table-container thead th {
+    position: sticky;
+    top: 0;
+    background: #deffdd;
+    z-index: 2;
 }

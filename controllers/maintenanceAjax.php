@@ -20,7 +20,7 @@ switch ($action) {
         $mant = $model->obtenerDetalleMantenimiento($id);
         if ($mant) {
             echo json_encode([
-                'success' => true, 
+                'success' => true,
                 'data' => [
                     'factura' => $mant['factura'],
                     'placa' => $mant['placa'],
@@ -29,7 +29,9 @@ switch ($action) {
                     'valor' => number_format($mant['valor'], 0, ',', '.'),
                     'fecha' => date('d/m/Y', strtotime($mant['fecha'])),
                     'kilometraje' => $mant['kilometraje'] ?? 'N/A',
-                    'observaciones' => $mant['observaciones'] ?? 'Ninguna'
+                    'observaciones' => $mant['observaciones'] ?? 'Ninguna',
+                    'id_prestador' => $mant['id_prestador'],
+                    'id_tipo_manteni' => $mant['id_tipo_manteni'],
                 ]
             ]);
         } else {
@@ -58,6 +60,46 @@ switch ($action) {
             echo json_encode(['success' => false, 'message' => 'Error al guardar.']);
         }
         break;
+
+    case 'update': // ✅ NUEVA ACCIÓN PARA EDITAR
+        $id = $_POST['id'] ?? 0;
+        $placa = $_POST['placa'];
+        $id_prestador = $_POST['id_prestador'];
+        $id_tipo_manteni = $_POST['id_tipo_manteni'];
+        $num_factura = $_POST['num_factura'];
+        $costo = str_replace(['$', ',', '.'], '', $_POST['costo'] ?? '');
+        $fecha = $_POST['fecha'];
+        $kilometraje = $_POST['kilometraje'] ?? null;
+        $observaciones = $_POST['observaciones'] ?? '';
+
+        // ✅ VALIDAR QUE EL ID EXISTA
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => 'ID no válido']);
+            exit;
+        }
+
+        // ✅ VALIDAR CAMPOS OBLIGATORIOS (los mismos que usa el modelo)
+        if (empty($placa) || empty($id_prestador) || empty($id_tipo_manteni) || empty($num_factura) || empty($costo) || empty($fecha)) {
+            echo json_encode(['success' => false, 'message' => 'Todos los campos son obligatorios.']);
+            exit;
+        }
+
+        if ($model->actualizarMantenimiento(
+        $id,                     
+        $num_factura,            
+        $placa,                  
+        $id_prestador,           
+        $id_tipo_manteni,        
+        $costo,                  
+        $fecha,                  
+        $kilometraje,         
+        $observaciones          
+    )) {
+        echo json_encode(['success' => true, 'message' => 'Actualizado correctamente']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'No se pudo actualizar. Verifique los datos.']);
+    }
+    break;
 
     case 'quickSave':
         $placa = $_POST['placa'] ?? '';

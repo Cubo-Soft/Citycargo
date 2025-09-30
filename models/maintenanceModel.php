@@ -23,7 +23,8 @@ class maintenanceModel
             p.nombre AS empresa,
             tm.nombre AS servicio,
             m.costo AS valor,
-            m.fecha
+            m.fecha,
+            COALESCE(m.observaciones, '') AS observaciones
         FROM mantenimiento m
         INNER JOIN prestadores_servicios p ON m.id_prestador = p.id_prestador
         INNER JOIN tipo_mantenimiento tm ON m.id_manteni = tm.id_tipo_manteni
@@ -49,7 +50,9 @@ class maintenanceModel
             m.num_factura AS factura,
             m.placa,
             p.nombre AS empresa,
+            p.id_prestador AS id_prestador,
             tm.nombre AS servicio,
+            tm.id_tipo_manteni AS id_tipo_manteni,
             m.costo AS valor,
             m.fecha,
             m.kilometraje,
@@ -77,35 +80,82 @@ class maintenanceModel
         return $stmt->execute();
     }
 
+    // ✅ ACTUALIZAR MANTENIMIENTO EXISTENTE
+    public function actualizarMantenimiento($id, $factura, $placa, $id_prestador, $id_tipo_manteni, $valor, $fecha, $kilometraje, $obs)
+    {
+        // Validación básica
+        if (!$id || $id <= 0) {
+            return false;
+        }
+
+        $sql = "UPDATE mantenimiento SET 
+                    num_factura = ?, 
+                    placa = ?, 
+                    id_prestador = ?, 
+                    id_manteni = ?, 
+                    costo = ?, 
+                    fecha = ?, 
+                    kilometraje = ?, 
+                    observaciones = ? 
+                WHERE id_mant_realizado = ?";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ssiiissss", $factura, $placa, $id_prestador, $id_tipo_manteni, $valor, $fecha, $kilometraje, $obs, $id);
+        return $stmt->execute();
+    }
 
     // ✅ CONTAR RESUMENES
-    public function contarMantenimientosTotales()
+    // public function contarMantenimientosTotales()
+    // {
+    //     $sql = "SELECT COUNT(*) as total FROM mantenimiento";
+    //     $result = $this->conn->query($sql);
+    //     $row = $result->fetch_assoc();
+    //     return $row['total'] ?? 0;
+    // }
+
+    // public function valorTotalPagado()
+    // {
+    //     $sql = "SELECT SUM(costo) as total FROM mantenimiento";
+    //     $result = $this->conn->query($sql);
+    //     $row = $result->fetch_assoc();
+    //     return number_format($row['total'] ?? 0, 0, ',', '.');
+    // }
+
+    // ✅ CONTAR RESUMENES MENSUALES
+    public function contarMantenimientosMensuales()
     {
-        $sql = "SELECT COUNT(*) as total FROM mantenimiento";
+        $sql = "SELECT COUNT(*) as total FROM mantenimiento 
+            WHERE YEAR(fecha) = YEAR(CURDATE()) 
+            AND MONTH(fecha) = MONTH(CURDATE())";
         $result = $this->conn->query($sql);
         $row = $result->fetch_assoc();
         return $row['total'] ?? 0;
     }
 
-    public function valorTotalPagado()
+    public function valorTotalPagadoMensual()
     {
-        $sql = "SELECT SUM(costo) as total FROM mantenimiento";
+        $sql = "SELECT SUM(costo) as total FROM mantenimiento 
+            WHERE YEAR(fecha) = YEAR(CURDATE()) 
+            AND MONTH(fecha) = MONTH(CURDATE())";
         $result = $this->conn->query($sql);
         $row = $result->fetch_assoc();
         return number_format($row['total'] ?? 0, 0, ',', '.');
     }
 
+    // ✅ PROXIMAS REVISIONES
     public function obtenerProximasRevisiones()
     {
         $sql = "SELECT 
-                    m.placa,
-                    tm.nombre AS servicio,
-                    mp.fecha_programada
-                FROM mantenimiento_programado mp
-                INNER JOIN tipo_mantenimiento tm ON mp.id_manteni = tm.id_tipo_manteni
-                INNER JOIN mantenimiento m ON mp.placa = m.placa
-                WHERE mp.fecha_programada >= CURDATE()
-                ORDER BY mp.fecha_programada ASC LIMIT 3";
+                mp.placa,
+                tm.nombre AS servicio,
+                mp.fecha_programada,
+                mp.id_mantenimiento,
+                mp.kilometraje_programado
+            FROM mantenimiento_programado mp
+            INNER JOIN tipo_mantenimiento tm ON mp.id_manteni = tm.id_tipo_manteni
+            WHERE mp.fecha_programada >= CURDATE() 
+            ORDER BY mp.fecha_programada";
+
         $result = $this->conn->query($sql);
         $revisiones = [];
         while ($row = $result->fetch_assoc()) {
@@ -114,7 +164,25 @@ class maintenanceModel
         return $revisiones;
     }
 
-    // ✅ OBTENER TODOS LOS PRESTADORES (para el formulario)
+    // ✅ ACTUALIZAR REVISIÓN PROGRAMADA
+    public function actualizarMantenimientoProgramado($id, $id_tipo_manteni, $fecha_programada)
+    {
+        if (!$id || $id <= 0) {
+            return false;
+        }
+
+        $sql = "UPDATE mantenimiento_programado 
+                SET 
+                    id_manteni = ?, 
+                    fecha_programada = ? 
+                WHERE id_mantenimiento = ?";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("iss", $id_tipo_manteni, $fecha_programada, $id);
+        return $stmt->execute();
+    }
+
+    // ✅ OBTENER TODOS LOS PRESTADORES
     public function obtenerPrestadores()
     {
         $sql = "SELECT id_prestador, nombre FROM prestadores_servicios ORDER BY nombre";
@@ -126,7 +194,7 @@ class maintenanceModel
         return $prestadores;
     }
 
-    // ✅ OBTENER TODOS LOS TIPOS DE MANTENIMIENTO (para el formulario)
+    // ✅ OBTENER TODOS LOS TIPOS DE MANTENIMIENTO
     public function obtenerTiposMantenimiento()
     {
         $sql = "SELECT id_tipo_manteni, nombre FROM tipo_mantenimiento ORDER BY nombre";
@@ -144,5 +212,5 @@ class maintenanceModel
     }
 
 
-    
+
 }

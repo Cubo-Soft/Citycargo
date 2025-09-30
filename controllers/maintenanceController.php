@@ -10,8 +10,8 @@ $model = new maintenanceModel();
 
 // OBTENER DATOS
 $mantenimientos = $model->obtenerMantenimientos();
-$totalMantenimientos = $model->contarMantenimientosTotales();
-$valorTotal = $model->valorTotalPagado();
+$totalMantenimientos = $model->contarMantenimientosMensuales();
+$valorTotal = $model->valorTotalPagadoMensual();
 $ultimosServicios = $model->obtenerProximasRevisiones();
 $prestadores = $model->obtenerPrestadores();
 $tiposMantenimiento = $model->obtenerTiposMantenimiento();

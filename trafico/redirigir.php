@@ -54,6 +54,10 @@ switch ($decicion) {
         header("Location: ../modulos/modulosempleados.php");
         break;
 
+    // case "MANTENIMIENTO E INVENTARIO":
+    //     header("Location: ../index.php?module=maintenance");
+    //     exit; // ¡IMPORTANTE! Detiene la ejecución
+
     case "MANTENIMIENTO E INVENTARIO":
         header("Location: ../controllers/maintenanceController.php");
         break;

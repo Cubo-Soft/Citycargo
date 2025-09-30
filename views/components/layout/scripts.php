@@ -132,9 +132,24 @@
     }
 </script>
 
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <!-- Github buttons -->
 <script async defer src="https://buttons.github.io/buttons.js"></script>
 <!-- Control Center for Soft Dashboard -->
 <script src="../assets/js/soft-ui-dashboard.min.js?v=1.1.0"></script>
 <!-- Scripts personalizados! -->
-<script src="../../assets/js/maintenance.js"></script>
+<script src="../assets/js/maintenance/maintenance.js"></script>
+
+
+<script>
+//  CONVIERTE TODOS LOS INPUTS Y TEXTAREAS A MAYÚSCULAS EN TIEMPO REAL
+document.addEventListener('input', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        // Solo si tiene valor y no es un checkbox/radio
+        if (e.target.value !== undefined) {
+            e.target.value = e.target.value.toUpperCase();
+        }
+    }
+});
+</script>

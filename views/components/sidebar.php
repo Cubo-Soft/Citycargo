@@ -4,8 +4,8 @@
 
     <div class="sidenav-header">
         <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
-            aria-hidden="true" id=""></i>
-        <a class="navbar-brand m-0" href="log" target="_blank">
+            aria-hidden="true" id="botonRegresar"></i>
+        <a class="navbar-brand m-0" href="botonRegresar" target="_blank">
             <img src="../imagenes/camion256.png" class="navbar-brand-img h-100" alt="main_logo">
             <span class="ms-3 font-weight-bold text-dark">CityCargo</span>
         </a>
