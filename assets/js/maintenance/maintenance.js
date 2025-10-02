@@ -196,7 +196,7 @@ $(document).ready(function () {
         setTimeout(() => {
             $('#modalNew').modal('show');
             // Mover el foco a un campo del nuevo modal (por ejemplo, el campo "placa")
-            $('input[name="placa"]').trigger('focus');
+            $('#formNew input[name="placa"]').trigger('focus');
         }, 300);
 
         $.ajax({
@@ -210,17 +210,18 @@ $(document).ready(function () {
 
                     $('#modalNew').modal('show');
 
-                    $('input[name="placa"]').val(data.placa).prop('readonly', true);
-                    $('input[name="num_factura"]').val(data.factura).prop('readonly',);
-                    $('input[name="costo"]').val(data.valor).prop('readonly',);
+                    // ✅ Solo en el formulario del modal (#formNew)
+                    $('#formNew input[name="placa"]').val(data.placa).prop('readonly', true);
+                    $('#formNew input[name="num_factura"]').val(data.factura).prop('readonly', true);
+                    $('#formNew input[name="costo"]').val(data.valor).prop('readonly', true);
 
-                    $('select[name="id_prestador"]').val(data.id_prestador);
-                    $('select[name="id_tipo_manteni"]').val(data.id_tipo_manteni);
+                    $('#formNew select[name="id_prestador"]').val(data.id_prestador);
+                    $('#formNew select[name="id_tipo_manteni"]').val(data.id_tipo_manteni);
 
                     const fechaFormateada = formatearFechaAISO(data.fecha);
-                    $('input[name="fecha"]').val(fechaFormateada);
-                    $('input[name="kilometraje"]').val(data.kilometraje || '');
-                    $('textarea[name="observaciones"]').val(data.observaciones || '');
+                    $('#formNew input[name="fecha"]').val(fechaFormateada);
+                    $('#formNew input[name="kilometraje"]').val(data.kilometraje || '');
+                    $('#formNew textarea[name="observaciones"]').val(data.observaciones || '');
 
                     $('#saveNew').text('Actualizar').off('click').on('click', function () {
                         let formData = $('#formNew').serialize();
@@ -513,8 +514,9 @@ $(document).ready(function () {
     // ✅ GUARDAR NUEVO SERVICIO
     $(document).on('click', '#btnGuardarServicio', function () {
         // Usar selectores dentro del modal específico
-        const nombre = $('#modalNuevoServicio input[name="nombre_servicio"]').val().trim();
-        const descripcion = $('#modalNuevoServicio input[name="descripcion_servicio"]').val().trim();
+        const nombre = ($('#modalNuevoServicio input[name="nombre_servicio"]').val() || '').trim();
+        const descripcion = ($('#modalNuevoServicio textarea[name="descripcion_servicio"]').val() || '').trim();
+
 
         if (!nombre || !descripcion) {
             Swal.fire('Advertencia', 'Nombre y Descripción obligatorios.', 'warning');

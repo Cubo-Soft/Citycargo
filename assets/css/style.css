@@ -81,12 +81,14 @@
 /*color de texto en card*/
 .text-orange {
     color: #eb720f !important;
-    /* Naranja de Bootstrap */
 }
 
 .text-red {
     color: #b90808 !important;
-    /* Naranja de Bootstrap */
+}
+
+.text-green {
+    color: #1da518 !important;
 }
 
 .btn-primary {

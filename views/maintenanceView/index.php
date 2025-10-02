@@ -277,7 +277,7 @@
                                 <?php foreach ($prestadores as $p): ?>
                                     <option value="<?= $p['id_prestador'] ?>"><?= htmlspecialchars($p['nombre']) ?></option>
                                 <?php endforeach; ?>
-                                <option value="nueva">➕ Nueva empresa</option>
+                                <option value="nueva" class="text-green">➕ Nueva empresa</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -288,7 +288,7 @@
                                     <option value="<?= $t['id_tipo_manteni'] ?>"><?= htmlspecialchars($t['nombre']) ?>
                                     </option>
                                 <?php endforeach; ?>
-                                <option value="nueva">➕ Nuevo Servicio</option>
+                                <option value="nueva" class="text-green">➕ Nuevo Servicio</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -430,8 +430,8 @@
                             <input type="text" class="form-control" name="nombre_empresa" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">NIT *</label>
-                            <input type="text" class="form-control" name="nit" placeholder="Ej: 987654321" required>
+                            <label class="form-label">NIT</label>
+                            <input type="text" class="form-control" name="nit" placeholder="Ej: 987654321">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Dirección</label>
@@ -439,7 +439,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Contacto (teléfono)</label>
-                            <input type="text" class="form-control" name="contacto" placeholder="Ej: 5555555" required>
+                            <input type="text" class="form-control" name="contacto" placeholder="Ej: 5555555">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Email</label>
@@ -505,7 +505,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Descripción</label>
-                        <textarea class="form-control" name="descripcion" rows="2" placeholder="Detalles del servicio"></textarea required >
+                        <textarea class="form-control" name="descripcion_servicio" rows="2" placeholder="Detalles del servicio"></textarea required >
                     </div>
                 </form>
             </div>

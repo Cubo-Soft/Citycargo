@@ -5,16 +5,16 @@ if (!isset($_SESSION["rol_id"])) {
     exit;
 }
 
-require_once '../models/maintenanceModel.php';
-$model = new maintenanceModel();
+// require_once '../models/inventoryModel.php';
+// $model = new maintenanceModel();
 
-// OBTENER DATOS
-$mantenimientos = $model->obtenerMantenimientos();
-$totalMantenimientos = $model->contarMantenimientosMensuales();
-$valorTotal = $model->valorTotalPagadoMensual();
-$ultimosServicios = $model->obtenerProximasRevisiones();
-$prestadores = $model->obtenerPrestadores();
-$tiposMantenimiento = $model->obtenerTiposMantenimiento();
+// // OBTENER DATOS
+// $mantenimientos = $model->obtenerMantenimientos();
+// $totalMantenimientos = $model->contarMantenimientosMensuales();
+// $valorTotal = $model->valorTotalPagadoMensual();
+// $ultimosServicios = $model->obtenerProximasRevisiones();
+// $prestadores = $model->obtenerPrestadores();
+// $tiposMantenimiento = $model->obtenerTiposMantenimiento();
 
 
 // Layout principal
