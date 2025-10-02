@@ -8,7 +8,8 @@
 /* Navbar */
 .navbar {
     background-color: var(--citycargo-green) !important;
-    z-index: 1030;  /* asegura que quede arriba */
+    z-index: 1030;
+    /* asegura que quede arriba */
 }
 
 .navbar .navbar-brand,
@@ -75,6 +76,17 @@
 .bg-image-curved>* {
     position: relative;
     z-index: 1;
+}
+
+/*color de texto en card*/
+.text-orange {
+    color: #eb720f !important;
+    /* Naranja de Bootstrap */
+}
+
+.text-red {
+    color: #b90808 !important;
+    /* Naranja de Bootstrap */
 }
 
 .btn-primary {
@@ -417,10 +429,14 @@
 }
 
 .table-container {
-    max-height: 350px;    /* límite de alto, unas 5-6 filas */
-    overflow-y: auto;    /* scroll vertical */
-    overflow-x: auto;    /* scroll horizontal habilitado */
-    width: 100%;    /* que use todo el ancho disponible */
+    max-height: 350px;
+    /* límite de alto, unas 5-6 filas */
+    overflow-y: auto;
+    /* scroll vertical */
+    overflow-x: auto;
+    /* scroll horizontal habilitado */
+    width: 100%;
+    /* que use todo el ancho disponible */
 }
 
 /*  fijar encabezado para que no se pierda al hacer scroll */

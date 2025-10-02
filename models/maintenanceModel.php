@@ -164,22 +164,57 @@ class maintenanceModel
         return $revisiones;
     }
 
-    // ✅ ACTUALIZAR REVISIÓN PROGRAMADA
-    public function actualizarMantenimientoProgramado($id, $id_tipo_manteni, $fecha_programada)
+    // ✅ ACTUALIZAR PROXIMA REVISIÓN 
+    public function actualizarProximaRevision($id, $id_tipo_manteni, $fecha_programada, $kilometraje_programado)
     {
         if (!$id || $id <= 0) {
             return false;
         }
 
         $sql = "UPDATE mantenimiento_programado 
-                SET 
-                    id_manteni = ?, 
-                    fecha_programada = ? 
-                WHERE id_mantenimiento = ?";
+            SET 
+                id_manteni = ?, 
+                fecha_programada = ?,
+                kilometraje_programado = ?
+            WHERE id_mantenimiento = ?";
 
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("iss", $id_tipo_manteni, $fecha_programada, $id);
+        $stmt->bind_param("issi", $id_tipo_manteni, $fecha_programada, $kilometraje_programado, $id);
         return $stmt->execute();
+    }
+
+    // ✅ GUARDAR PROXIMA REVISIÓN 
+    public function guardarProximaRevision($placa, $fecha_programada, $id_tipo_manteni, $kilometraje)
+    {
+        $sql = "INSERT INTO mantenimiento_programado (placa, fecha_programada, id_manteni, kilometraje_programado) 
+            VALUES (?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ssii", $placa, $fecha_programada, $id_tipo_manteni, $kilometraje);
+        return $stmt->execute();
+    }
+
+    // ✅ OBTENER PRÓXIMA REVISION POR ID
+    public function obtenerProximaRevisionPorId($id)
+    {
+        if (!$id || $id <= 0) {
+            return false;
+        }
+
+        $sql = "SELECT mp.id_mantenimiento,
+                    mp.placa,
+                    mp.fecha_programada,
+                    mp.id_manteni,
+                    mp.kilometraje_programado,
+                    tm.nombre AS servicio
+                    FROM mantenimiento_programado mp
+                    INNER JOIN tipo_mantenimiento tm ON mp.id_manteni = tm.id_tipo_manteni
+                    WHERE mp.id_mantenimiento = ?";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result ? $result->fetch_assoc() : false;
     }
 
     // ✅ OBTENER TODOS LOS PRESTADORES
@@ -210,6 +245,73 @@ class maintenanceModel
     {
         $this->conn->close();
     }
+
+    // ✅ VERIFICAR SI PRESTADOR EXISTE (por nombre o NIT)
+    public function prestadorExiste($nombre, $nit)
+    {
+        $sql = "SELECT id_prestador FROM prestadores_servicios WHERE nombre = ? OR nit = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ss", $nombre, $nit);
+        $stmt->execute();
+        return $stmt->get_result()->num_rows > 0;
+    }
+
+    // ✅ CREAR NUEVO PRESTADOR (EMPRESA)
+    public function crearPrestador($nombre, $nit, $direccion = '', $contacto = '', $mail_prestador = '')
+    {
+        if (empty(trim($nombre)) || empty(trim($nit))) {
+            return false;
+        }
+
+        // Verificar duplicado usando el nuevo método
+        if ($this->prestadorExiste($nombre, $nit)) {
+            return false;
+        }
+
+        $sql = "INSERT INTO prestadores_servicios (nombre, nit, direccion, contacto, mail_prestador) 
+            VALUES (?, ?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("sssss", $nombre, $nit, $direccion, $contacto, $mail_prestador);
+        if ($stmt->execute()) {
+            return $this->conn->insert_id;
+        }
+        return false;
+    }
+
+    // ✅ VERIFICAR SI SERVICIO EXISTE (por nombre)
+    public function servicioExiste($nombre)
+    {
+        $sql = "SELECT id_tipo_manteni FROM tipo_mantenimiento WHERE nombre = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $nombre);
+        $stmt->execute();
+        return $stmt->get_result()->num_rows > 0;
+    }
+
+    // ✅ CREAR NUEVO SERVICIO (tipo mantenimiento)
+    public function crearServicio($nombre, $descripcion)
+    {
+        if (empty(trim($nombre)) || empty(trim($descripcion))) {
+            return false;
+        }
+
+        // Verificar duplicado usando el nuevo método
+        if ($this->servicioExiste($nombre)) {
+            return false;
+        }
+
+        $sql = "INSERT INTO tipo_mantenimiento (nombre, descripcion) 
+            VALUES (?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ss", $nombre, $descripcion);
+        if ($stmt->execute()) {
+            return $this->conn->insert_id;
+        }
+        return false;
+    }
+
+
+
 
 
 

@@ -16,6 +16,7 @@ $ultimosServicios = $model->obtenerProximasRevisiones();
 $prestadores = $model->obtenerPrestadores();
 $tiposMantenimiento = $model->obtenerTiposMantenimiento();
 
+
 // Layout principal
 include '../views/components/layout/head.php';
 ?>

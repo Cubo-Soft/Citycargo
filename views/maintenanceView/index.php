@@ -128,8 +128,7 @@
                 <div class="card p-3 h-100">
                     <div class="d-flex justify-content-between align-items-center">
                         <strong>Próximas Revisiones</strong>
-                        <a href="#" class="text-secondary text-xs" data-bs-toggle="modal"
-                            data-bs-target="#modalNuevaRevision">
+                        <a href="#" class="text-secondary text-xs" data-bs-toggle="modal" data-bs-target="#modalNewRev">
                             <i class="bi bi-pencil"></i> Agregar
                         </a>
                     </div>
@@ -139,27 +138,31 @@
                             <li class="mb-2">No hay revisiones programadas.</li>
                         <?php else: ?>
                             <?php foreach ($ultimosServicios as $serv): ?>
+
                                 <?php
-                                $fecha = new DateTime($serv['fecha_programada']);
+                                $fechaProg = new DateTime($serv['fecha_programada']);
                                 $hoy = new DateTime();
-                                $dias = $fecha->diff($hoy)->days;
+                                $hoy->setTime(0, 0, 0); // Solo comparar días
+                                $fechaProg->setTime(0, 0, 0);
+
+                                // Calcular días que faltan (puede ser negativo si ya pasó, pero tu SQL lo evita)
+                                $diasFaltan = (int) (($fechaProg->getTimestamp() - $hoy->getTimestamp()) / (60 * 60 * 24));
 
                                 // Clase según urgencia
-                                if ($dias == 0) {
-                                    $clase = 'text-danger'; // Hoy → ROJO
-                                } elseif ($dias == 1) {
-                                    $clase = 'text-warning'; // Mañana → AMARILLO
+                                if ($diasFaltan == 0) {
+                                    $clase = 'text-red'; // Hoy → rojo
+                                } elseif ($diasFaltan == 1 || $diasFaltan == 2) {
+                                    $clase = 'text-orange'; // 1 o 2 días antes → naranja
                                 } else {
-                                    $clase = ''; // Normal → color por defecto
+                                    $clase = ''; // 3+ días → normal
                                 }
                                 ?>
 
                                 <li class="mb-2">
                                     <i class="bi bi-truck me-2"></i>
-                                    <a href="#modalEditarRevision" class="text-secondary font-weight-bolder text-sm opacity-"
-                                        onclick="event.preventDefault(); modalEditarRevision(<?= $serv['id_mantenimiento'] ?>);">
-                                        <?= htmlspecialchars($serv['placa']) ?> →
-                                        <?= htmlspecialchars($serv['servicio']) ?>
+                                    <a href="javascript:void(0)" class="text-secondary font-weight-bolder text-sm"
+                                        onclick="cargarDatosRevision(<?= (int) $serv['id_mantenimiento'] ?>);">
+                                        <?= htmlspecialchars($serv['placa']) ?> → <?= htmlspecialchars($serv['servicio']) ?>
                                     </a>
                                     <small class="<?= $clase ?>">
                                         Km: <?= number_format($serv['kilometraje_programado'], 0, ',', '.') ?> —
@@ -227,7 +230,6 @@
 </div>
 
 
-<!-- Modal Nueva Revision-->
 
 <!-- Modal: Detalle Mantenimiento-->
 <div class="modal fade" id="modalDetail" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -249,6 +251,9 @@
 </div>
 
 
+<!-- Inicio Modales -->
+
+
 <!-- Modal: Nuevo mantenimiento -->
 <div class="modal fade" id="modalNew" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -262,25 +267,28 @@
                     <div class="row g-2">
                         <div class="col-md-6">
                             <label for="placa" class="form-label">Placa</label>
-                            <input id="placa" class="form-control" name="placa" placeholder="Placa (ej. UUU123)" required>
+                            <input id="placa" class="form-control" name="placa" placeholder="Placa (ej. UUU123)"
+                                required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Empresa</label>
-                            <select class="form-select" name="id_prestador" required>
+                            <select class="form-select" name="id_prestador" id="selectEmpresa" required>
                                 <option value="">Seleccionar empresa</option>
                                 <?php foreach ($prestadores as $p): ?>
                                     <option value="<?= $p['id_prestador'] ?>"><?= htmlspecialchars($p['nombre']) ?></option>
                                 <?php endforeach; ?>
+                                <option value="nueva">➕ Nueva empresa</option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Servicio</label>
-                            <select class="form-select" name="id_tipo_manteni" required>
+                            <select class="form-select" name="id_tipo_manteni" id="selectServicio" required>
                                 <option value="">Seleccionar servicio</option>
                                 <?php foreach ($tiposMantenimiento as $t): ?>
                                     <option value="<?= $t['id_tipo_manteni'] ?>"><?= htmlspecialchars($t['nombre']) ?>
                                     </option>
                                 <?php endforeach; ?>
+                                <option value="nueva">➕ Nuevo Servicio</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -316,20 +324,21 @@
 </div>
 
 <!-- Modal Nueva Revision-->
-<div class="modal fade" id="modalNuevaRevision" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalNuevaRevisionLabel">
+<div class="modal fade" id="modalNewRev" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalNewRev">
     <div class="modal-dialog  modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalNuevaRevisionLabel">Nueva Revisión</h5>
+                <h5 class="modal-title" id="newRev">Nueva Revisión</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="">
+                <form id="formRev">
                     <div class="mb-3">
                         <label for="placa" class="form-label">Placa</label>
                         <input id="placa" class="form-control" name="placa" placeholder="Placa (ej. UUU123)" required>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Servicio</label>
                         <select class="form-select" name="id_tipo_manteni" required>
                             <option value="">Seleccionar servicio</option>
                             <?php foreach ($tiposMantenimiento as $t): ?>
@@ -342,8 +351,13 @@
                         <input type="date" class="form-control" id="fecha" name="fecha_programada"
                             value="<?= date('Y-m-d') ?>">
                     </div>
+                    <div class="mb-3">
+                        <label for="kilometraje_programado" class="form-label">Kilometraje Programado</label>
+                        <input type="number" class="form-control" name="kilometraje_programado" placeholder="Ej: 150000"
+                            min="0">
+                    </div>
                     <div class="modal-footer">
-                        <button class="btn btn-success" id="">Guardar</button>
+                        <button type="button" class="btn btn-success" id="saveNewRev">Guardar</button>
                     </div>
                 </form>
             </div>
@@ -351,19 +365,153 @@
     </div>
 </div>
 
-<!-- Modal Editar Revision-->
-<div class="modal fade" id="modalEditarRevision" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalEditarRevisionLabel">
+<!-- Modal Editar Revision -->
+<div class="modal fade" id="modalEditRev" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalEditRev">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalEditarRevisionLabel">Editar Revisión</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Editar Revisión</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <p id="modalContenido">Cargando...</p>
+                <form id="formEditRev">
+                    <!-- Campo oculto para el ID -->
+                    <input type="hidden" id="id_mantenimiento" name="id_mantenimiento">
+
+                    <div class="mb-3">
+                        <label for="placa_edit" class="form-label">Placa</label>
+                        <input id="placa_edit" class="form-control" name="placa" placeholder="Placa" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Servicio</label>
+                        <select class="form-select" name="id_tipo_manteni" required>
+                            <option value="">Seleccionar servicio</option>
+                            <?php foreach ($tiposMantenimiento as $t): ?>
+                                <option value="<?= $t['id_tipo_manteni'] ?>"><?= htmlspecialchars($t['nombre']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fecha_edit" class="form-label">Fecha Programada</label>
+                        <input type="date" class="form-control" id="fecha_edit" name="fecha_programada" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="kilometraje_edit" class="form-label">Kilometraje Programado</label>
+                        <input type="number" class="form-control" id="kilometraje_edit" name="kilometraje_programado"
+                            placeholder="Ej: 150000" min="0" required>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-success" id="saveEditRev">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submodal: Nueva Empresa -->
+<div class="modal fade" id="modalNuevaEmpresa" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Empresa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formNuevaEmpresa">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" name="nombre_empresa" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">NIT *</label>
+                            <input type="text" class="form-control" name="nit" placeholder="Ej: 987654321" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Dirección</label>
+                            <input type="text" class="form-control" name="direccion" placeholder="Calle 123" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contacto (teléfono)</label>
+                            <input type="text" class="form-control" name="contacto" placeholder="Ej: 5555555" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" placeholder="ejemplo@gmail.com"
+                                required>
+                        </div>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarEmpresa">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Submodal: Nuevo Servicio -->
+<div class="modal fade" id="modalNuevoServicio" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Servicio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formNuevoServicio">
+                    <div class="row g-3">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" name="nombre_servicio"
+                                placeholder="Ej: Cambio de llantas"></textarea required>
+                        </div>
+                        <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" name="descripcion_servicio" rows="2" placeholder="Detalles del servicio"></textarea required >
+                    </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarServicio">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submodal: Nuevo Servicio -->
+<div class="modal fade" id="modalNuevoServicio" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Servicio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formNuevoServicio">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre del servicio *</label>
+                        <input type="text" class="form-control" name="nombre_servicio" placeholder="Ej: Cambio de aceite" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" name="descripcion" rows="2" placeholder="Detalles del servicio"></textarea required >
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarServicio">Guardar</button>
             </div>
         </div>
     </div>
