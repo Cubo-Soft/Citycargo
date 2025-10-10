@@ -229,7 +229,7 @@
     </form>
 </div>
 
-
+<!-- Inicio Modales -->
 
 <!-- Modal: Detalle Mantenimiento-->
 <div class="modal fade" id="modalDetail" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -249,9 +249,6 @@
         </div>
     </div>
 </div>
-
-
-<!-- Inicio Modales -->
 
 
 <!-- Modal: Nuevo mantenimiento -->
@@ -430,8 +427,8 @@
                             <input type="text" class="form-control" name="nombre_empresa" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">NIT</label>
-                            <input type="text" class="form-control" name="nit" placeholder="Ej: 987654321">
+                            <label class="form-label">NIT *</label>
+                            <input type="text" class="form-control" name="nit" placeholder="Ej: 987654321" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Dirección</label>
@@ -439,7 +436,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Contacto (teléfono)</label>
-                            <input type="text" class="form-control" name="contacto" placeholder="Ej: 5555555">
+                            <input type="text" class="form-control" name="contacto" placeholder="Ej: 5555555" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Email</label>
@@ -505,7 +502,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Descripción</label>
-                        <textarea class="form-control" name="descripcion_servicio" rows="2" placeholder="Detalles del servicio"></textarea required >
+                        <textarea class="form-control" name="descripcion" rows="2" placeholder="Detalles del servicio"></textarea required >
                     </div>
                 </form>
             </div>
