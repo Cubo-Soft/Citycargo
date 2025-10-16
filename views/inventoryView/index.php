@@ -54,7 +54,6 @@
                         </div>
 
                         <!-- Acordion de secciones -->
-                        <!-- Acordion de secciones -->
                         <div class="accordion" id="accordionInventario">
                             <?php
                             $secciones = [
@@ -130,6 +129,125 @@
                         </div>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Sección 2: Tabla de inventarios registrados -->
+<div class="row my-4">
+    <!-- Tabla 1 -->
+    <div class="col-lg-12 col-md-6 mb-md-0 mb-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header pb-0">
+                        <strong>Inventarios Registrados</strong>
+                        <hr class="horizontal dark mt-2">
+                    </div>
+                    <div class="card-body px-0 pt-0 pb-2">
+                        <div class="table-responsive p-0">
+                            <div class="table-container">
+                                <table class="table align-items-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th
+                                                class="text-uppercase text-secondary text-xs font-weight-bolder opacity- ps-2">
+                                                #</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-">
+                                                Placa</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-">
+                                                Propietario</th>
+                                            <!-- <th class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Estado</th> -->
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-">
+                                                Fecha</th>
+                                            <!-- <th
+                                            class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                            Conductor</th> -->
+                                            <th
+                                                class="text-uppercase text-secondary text-xs font-weight-bolder opacity-">
+                                                Cédula</th>
+                                            <th
+                                                class="text-uppercase text-secondary text-xs font-weight-bolder opacity-">
+                                                Tipo Vehiculo</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-">
+                                                Marca</th>
+                                            <th
+                                                class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-">
+                                                Tipo Combustible</th>
+                                            <th class="text-secondary opacity-"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        // Ordenar inventarios por fecha (más reciente primero)
+                                        usort($inventarios, function ($a, $b) {
+                                            return strtotime($b['fecha']) - strtotime($a['fecha']); // Descendente
+                                        });
+                                        ?>
+
+                                        <?php if (empty($inventarios)): ?>
+                                            <tr>
+                                                <td colspan="9" class="text-center py-4">No hay registro de Inventarios.
+                                                </td>
+                                            </tr>
+                                        <?php else: ?>
+                                            <?php foreach ($inventarios as $index => $inv): ?>
+                                                <tr>
+                                                    <td class="text-xs font-weight-bold"><?= $index + 1 ?></td>
+                                                    <td class="text-sm text-center"><?= htmlspecialchars($inv['placa']) ?></td>
+                                                    <td class="text-sm text-center"><?= htmlspecialchars($inv['nombre']) ?></td>
+                                                    <td class="text-sm text-center">
+                                                        <?= date('d/m/Y', strtotime($inv['fecha'])) ?>
+                                                    </td>
+                                                    <td class="text-sm text-center"><?= htmlspecialchars($inv['identificacion']) ?></td>
+                                                    <td class="text-sm text-center"><?= htmlspecialchars($inv['tipo_vehiculo']) ?></td>
+                                                    <td class="text-sm text-center"><?= htmlspecialchars($inv['marca']) ?></td>
+                                                    <td class="text-sm text-center"><?= htmlspecialchars($inv['tipo_combustible']) ?></td>
+                                                    <td class="align-middle">
+                                                        <a href="javascript:;"
+                                                            class="text-secondary font-weight-bolder text-xs btn-ver-detalle"
+                                                            data-id="<?= $inv['id'] ?>" data-bs-toggle="modal"
+                                                            data-bs-target="#modalDetalleInventario">
+                                                            Ver
+                                                        </a>
+                                                        <a href="javascript:;"
+                                                            class="text-secondary font-weight-bolder text-xs btn-ver-detalle"
+                                                            data-id="<?= $inv['id'] ?>" data-bs-toggle="modal"
+                                                            data-bs-target="#modalEditInventario">
+                                                            Editar
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal ver inventario -->
+<div class="modal fade" id="modalDetalleInventario" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle de Inventario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Aquí se cargará el contenido vía AJAX -->
+                <div id="contenidoInventario"></div>
             </div>
         </div>
     </div>
