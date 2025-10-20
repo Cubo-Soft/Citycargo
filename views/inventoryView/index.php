@@ -15,10 +15,11 @@
                                 <label class="form-label">Placa</label>
                                 <select class="form-select" name="placa" required>
                                     <option value="">Seleccionar placa</option>
-                                    <?php foreach ($placas as $placa): ?>
-                                        <option value="<?= htmlspecialchars($placa) ?>"><?= htmlspecialchars($placa) ?>
+                                    <?php foreach ($placas as $p): ?>
+                                        <option value="<?= htmlspecialchars($p) ?>"><?= htmlspecialchars($p) ?>
                                         </option>
                                     <?php endforeach; ?>
+                                    <option value="nueva" class="text-green">➕ Agregar nueva Placa</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -42,7 +43,7 @@
                                     required>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Tipo Combustible</label>
+                                <label class="form-label">Tipo Carroceria</label>
                                 <input type="text" class="form-control" name="tipo_combustible"
                                     placeholder="tipo combustible (ej. Diesel)" required>
                             </div>
@@ -76,7 +77,7 @@
                                     </h2>
                                     <div id="collapse_<?= $clave ?>" class="accordion-collapse collapse"
                                         aria-labelledby="heading_<?= $clave ?>" data-bs-parent="#accordionInventario">
-                                        
+
                                         <div class="accordion-body pt-3">
                                             <div class="row gy-3">
                                                 <?php foreach ($datos['items'] as $item): ?>
@@ -205,10 +206,13 @@
                                                     <td class="text-sm text-center">
                                                         <?= date('d/m/Y', strtotime($inv['fecha'])) ?>
                                                     </td>
-                                                    <td class="text-sm text-center"><?= htmlspecialchars($inv['identificacion']) ?></td>
-                                                    <td class="text-sm text-center"><?= htmlspecialchars($inv['tipo_vehiculo']) ?></td>
+                                                    <td class="text-sm text-center">
+                                                        <?= htmlspecialchars($inv['identificacion']) ?></td>
+                                                    <td class="text-sm text-center">
+                                                        <?= htmlspecialchars($inv['tipo_vehiculo']) ?></td>
                                                     <td class="text-sm text-center"><?= htmlspecialchars($inv['marca']) ?></td>
-                                                    <td class="text-sm text-center"><?= htmlspecialchars($inv['tipo_combustible']) ?></td>
+                                                    <td class="text-sm text-center">
+                                                        <?= htmlspecialchars($inv['tipo_combustible']) ?></td>
                                                     <td class="align-middle">
                                                         <a href="javascript:;"
                                                             class="text-secondary font-weight-bolder text-xs btn-ver-detalle"

@@ -12,6 +12,21 @@ class maintenanceModel
         $this->conn->set_charset("utf8");
     }
 
+
+    public function obtenerPlacas()
+    {
+        $sql = "SELECT DISTINCT placa FROM tarje_prop_vehiculos WHERE placa IS NOT NULL AND placa != '' ORDER BY placa";
+        $result = $this->conn->query($sql);
+        $placas = [];
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $placas[] = $row['placa'];
+            }
+        }
+        return $placas;
+    }
+
+
     // ✅ OBTENER TODOS LOS MANTENIMIENTOS REALIZADOS
     public function obtenerMantenimientos()
     {
@@ -295,7 +310,7 @@ class maintenanceModel
             return false;
         }
 
-        // Verificar duplicado usando el nuevo método
+        // ✅ Verificar duplicado 
         if ($this->servicioExiste($nombre)) {
             return false;
         }
@@ -307,6 +322,95 @@ class maintenanceModel
         if ($stmt->execute()) {
             return $this->conn->insert_id;
         }
+        return false;
+    }
+
+
+    //✅ Obtener marcas usando tabla ya usada
+    public function obtenerMarcas()
+    {
+        $sql = "SELECT id, marca AS des_marca FROM marcasvehiculos WHERE estado = 1 ORDER BY marca";
+        $result = $this->conn->query($sql);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
+    //✅ Obtener líneas (relacionadas con marcasvehiculos)
+    public function obtenerLineas()
+    {
+        $sql = "SELECT id_linea, id_marca, des_linea FROM lineas_vehi ORDER BY des_linea";
+        $result = $this->conn->query($sql);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
+    //✅ Obtener colores
+    public function obtenerColores()
+    {
+        $sql = "SELECT id_color, des_color FROM colores ORDER BY des_color";
+        $result = $this->conn->query($sql);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
+    //✅ Obtener tipos de servicio
+    public function obtenerTiposServicio()
+    {
+        $sql = "SELECT id_tipo_serv, des_tip_servicio FROM tipos_servicio ORDER BY des_tip_servicio";
+        $result = $this->conn->query($sql);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
+    //✅ Obtener clases de vehículo
+    public function obtenerClasesVehi()
+    {
+        $sql = "SELECT id_clase, des_clase FROM clases_vehi ORDER BY des_clase";
+        $result = $this->conn->query($sql);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
+    //✅ Obtener carrocerías
+    public function obtenerCarrocerias()
+    {
+        $sql = "SELECT id_tip_carroce, des_carroce FROM tipo_carrocerias ORDER BY des_carroce";
+        $result = $this->conn->query($sql);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
+    //✅ Obtener tipos de combustible
+    public function obtenerCombustibles()
+    {
+        $sql = "SELECT id_tip_combus, des_combus FROM tipos_combust ORDER BY des_combus";
+        $result = $this->conn->query($sql);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
+    //✅ Verificar si la placa existe
+    public function existePlaca($placa)
+    {
+        $stmt = $this->conn->prepare("SELECT 1 FROM tarje_prop_vehiculos WHERE placa = ?");
+        $stmt->bind_param("s", $placa);
+        $stmt->execute();
+        return $stmt->get_result()->num_rows > 0;
+    }
+
+    //✅ Crear nuevo vehículo
+    public function crearVehiculo($data)
+    {
+        $sql = "INSERT INTO tarje_prop_vehiculos (
+        placa, id_marca, id_linea, modelo, cilindraje, id_color,
+        id_servicio, id_clase, id_carroce, id_combust, capacidad,
+        num_motor, vin, num_serie, num_chasis, id_propietario,
+        decla_importacion, blindaje, potencia, fec_matricula,
+        fec_exp_li_tto, org_tto_matricula, id_grabador
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("siiiiiiiiiiissssisiiisssi",$placa,$id_marca, $id_linea, $modelo, $cilindraje, $id_color, $id_servicio,
+            $id_clase, $id_carroce, $id_combust, $capacidad, $num_motor, $vin, $num_serie, $num_chasis, $id_propietario, $decla_importacion, $blindaje,
+            $potencia, $fec_matricula, $fec_exp_li_tto, $org_tto_matricula, $id_grabador);
+
+        if ($stmt->execute()) {
+            return $this->conn->insert_id;
+        }
+
         return false;
     }
 

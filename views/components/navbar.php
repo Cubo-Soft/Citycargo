@@ -42,7 +42,7 @@
                     <?php if (!empty($_SESSION['foto_perfil'])): ?>
                         <img src="<?= htmlspecialchars($_SESSION['foto_perfil']) ?>" class="avatar avatar-sm me-3" alt="Usuario">
                     <?php else: ?>
-                        <img src="../assets/img/team-4.jpg" class="avatar avatar-sm me-3" alt="Usuario">
+                        <img src="../assets/img/avatar1.jpg" class="avatar avatar-sm me-3" alt="Usuario">
                     <?php endif; ?>
                     <span class="text-white">
                         <?= htmlspecialchars($_SESSION['nombre_usuario'] ?? 'Usuario') ?>

@@ -145,16 +145,16 @@
                                 $hoy->setTime(0, 0, 0); // Solo comparar días
                                 $fechaProg->setTime(0, 0, 0);
 
-                                // Calcular días que faltan (puede ser negativo si ya pasó, pero tu SQL lo evita)
+                                // Calcular días que faltan (puede ser negativo si ya pasó, el SQL lo evita)
                                 $diasFaltan = (int) (($fechaProg->getTimestamp() - $hoy->getTimestamp()) / (60 * 60 * 24));
 
                                 // Clase según urgencia
-                                if ($diasFaltan == 0) {
-                                    $clase = 'text-red'; // Hoy → rojo
-                                } elseif ($diasFaltan == 1 || $diasFaltan == 2) {
-                                    $clase = 'text-orange'; // 1 o 2 días antes → naranja
+                                if ($diasFaltan <= 5) {
+                                    $clase = 'text-red'; 
+                                } elseif ($diasFaltan <= 10) {
+                                    $clase = 'text-orange'; 
                                 } else {
-                                    $clase = ''; // 3+ días → normal
+                                    $clase = 'text-green'; 
                                 }
                                 ?>
 
@@ -264,8 +264,13 @@
                     <div class="row g-2">
                         <div class="col-md-6">
                             <label for="placa" class="form-label">Placa</label>
-                            <input id="placa" class="form-control" name="placa" placeholder="Placa (ej. UUU123)"
-                                required>
+                            <select class="form-select" name="placa" id="selectPlaca" required>
+                                <option value="">Seleccionar placa</option>
+                                <?php foreach ($placas as $p): ?>
+                                    <option value="<?= htmlspecialchars($p) ?>"><?= htmlspecialchars($p) ?></option>
+                                <?php endforeach; ?>
+                                <option value="nuevo" class="text-green">➕ Nueva placa</option>
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Empresa</label>
@@ -472,8 +477,9 @@
                                 placeholder="Ej: Cambio de llantas"></textarea required>
                         </div>
                         <div class="mb-3">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-control" name="descripcion_servicio" rows="2" placeholder="Detalles del servicio"></textarea required >
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" name="descripcion_servicio" rows="2"
+                                placeholder="Detalles del servicio"></textarea required >
                     </div>
                     </div>
                 </form>
@@ -486,29 +492,103 @@
     </div>
 </div>
 
-<!-- Submodal: Nuevo Servicio -->
-<div class="modal fade" id="modalNuevoServicio" tabindex="-1">
-    <div class="modal-dialog">
+<!-- Submodal: Nueva Placa -->
+<div class="modal fade" id="modalNuevaPlaca" tabindex="-1">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Nuevo Servicio</h5>
+                <h5 class="modal-title">Registrar Nuevo Vehículo</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="formNuevoServicio">
-                    <div class="mb-3">
-                        <label class="form-label">Nombre del servicio *</label>
-                        <input type="text" class="form-control" name="nombre_servicio" placeholder="Ej: Cambio de aceite" required>
+                <div class="row g-2">
+                    <!-- Placa -->
+                    <div class="col-md-4">
+                        <label class="form-label">Placa *</label>
+                        <input type="text" class="form-control" name="placa" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-control" name="descripcion" rows="2" placeholder="Detalles del servicio"></textarea required >
+
+                    <!-- Marca -->
+                    <div class="col-md-4">
+                        <label class="form-label">Marca *</label>
+                        <select class="form-select" name="id_marca" required>
+                            <option value="">Seleccionar...</option>
+                            <?php foreach ($marcas as $m): ?>
+                                    <option value="<?= $m['id_marca'] ?>"><?= htmlspecialchars($m['des_marca']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
-                </form>
+
+                    <!-- Línea -->
+                    <div class="col-md-4">
+                        <label class="form-label">Línea</label>
+                        <select class="form-select" name="id_linea">
+                            <option value="">Seleccionar...</option>
+                            <?php foreach ($lineas as $l): ?>
+                                    <option value="<?= $l['id_linea'] ?>"><?= htmlspecialchars($l['des_linea']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Tipo de carrocería -->
+                    <div class="col-md-4">
+                        <label class="form-label">Tipo Vehículo *</label>
+                        <select class="form-select" name="id_carroce" required>
+                            <?php foreach ($carrocerias as $c): ?>
+                                    <option value="<?= $c['id_tip_carroce'] ?>"><?= htmlspecialchars($c['des_carroce']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Tipo de combustible -->
+                    <div class="col-md-4">
+                        <label class="form-label">Combustible *</label>
+                        <select class="form-select" name="id_combust" required>
+                            <?php foreach ($combustibles as $c): ?>
+                                    <option value="<?= $c['id_tip_combus'] ?>"><?= htmlspecialchars($c['des_combus']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Color -->
+                    <div class="col-md-4">
+                        <label class="form-label">Color</label>
+                        <select class="form-select" name="id_color">
+                            <option value="">Seleccionar...</option>
+                            <?php foreach ($colores as $c): ?>
+                                    <option value="<?= $c['id_color'] ?>"><?= htmlspecialchars($c['des_color']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Propietario -->
+                    <div class="col-md-6">
+                        <label class="form-label">Propietario</label>
+                        <select class="form-select" name="id_propietario">
+                            <option value="">Seleccionar...</option>
+                            <?php foreach ($propietarios as $p): ?>
+                                    <option value="<?= $p['id_propietario'] ?>"><?= htmlspecialchars($p['nombre']) ?></option>
+                            <?php endforeach; ?>
+                            <option value="nuevo_prop">➕ Nuevo propietario</option>
+                        </select>
+                    </div>
+
+                    <!-- Modelo (año) -->
+                    <div class="col-md-3">
+                        <label class="form-label">Modelo (año)</label>
+                        <input type="number" class="form-control" name="modelo" min="1900" max="2030">
+                    </div>
+
+                    <!-- Capacidad -->
+                    <div class="col-md-3">
+                        <label class="form-label">Capacidad (kg)</label>
+                        <input type="number" class="form-control" name="capacidad">
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" id="btnGuardarServicio">Guardar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarPlaca">Guardar Vehículo</button>
             </div>
         </div>
     </div>

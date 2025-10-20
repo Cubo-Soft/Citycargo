@@ -559,6 +559,69 @@ $(document).ready(function () {
     });
 
 
+    // ✅ Detectar selección de "Nueva placa"
+    $('#selectPlaca').on('change', function () {
+        if ($(this).val() === 'nuevo') {
+            const subModal = new bootstrap.Modal(document.getElementById('modalNuevaPlaca'));
+            subModal.show();
+            $(this).val(''); // Restaurar selección
+        }
+    });
+
+    // ✅ GUARDAR NUEVA PLACA
+    $(document).on('click', '#btnGuardarPlaca', function () {
+        const placa = $('#modalNuevaPlaca input[name="placa"]').val().trim();
+        const tipo_vehiculo = $('#modalNuevaPlaca input[name="tipo_vehiculo"]').val().trim();
+        const marca = $('#modalNuevaPlaca input[name="marca"]').val().trim();
+        const tipo_combustible = $('#modalNuevaPlaca input[name="tipo_combustible"]').val().trim();
+        const nombre_propietario = $('#modalNuevaPlaca input[name="nombre_propietario"]').val().trim();
+        const identificacion = $('#modalNuevaPlaca input[name="identificacion"]').val().trim();
+
+        if (!placa || !tipo_vehiculo || !marca || !tipo_combustible) {
+            Swal.fire('Advertencia', 'Placa, tipo, marca y combustible son obligatorios.', 'warning');
+            return;
+        }
+
+        $.ajax({
+            url: '../controllers/maintenanceAjax.php',
+            type: 'POST',
+            data: {
+                action: 'crearVehiculo',
+                placa: placa,
+                tipo_vehiculo: tipo_vehiculo,
+                marca: marca,
+                tipo_combustible: tipo_combustible,
+                nombre_propietario: nombre_propietario,
+                identificacion: identificacion
+            },
+            dataType: 'json',
+            success: function (res) {
+                if (res.success) {
+                    $('#modalNuevaPlaca').modal('hide');
+                    // Limpiar campos
+                    $('#modalNuevaPlaca input').val('');
+
+                    // Agregar al select
+                    $('#selectPlaca').append(
+                        $('<option>', {
+                            value: placa,
+                            text: placa
+                        })
+                    );
+                    $('#selectPlaca').val(placa);
+                    Swal.fire('Éxito', 'Vehículo registrado correctamente.', 'success');
+                } else {
+                    Swal.fire('Error', res.message || 'No se pudo crear el vehículo.', 'error');
+                }
+            },
+            error: function () {
+                Swal.fire('Error', 'Error de conexión al crear el vehículo.', 'error');
+            }
+        });
+    });
+
+
+
 
 
 

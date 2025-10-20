@@ -214,7 +214,7 @@ switch ($action) {
         }
         break;
 
-// ✅ CREAR NUEVO TIPO SERVICIO (TIPO MANTENIMIENTO))
+    // ✅ CREAR NUEVO TIPO SERVICIO (TIPO MANTENIMIENTO))
     case 'crearServicio':
         $nombre = trim($_POST['nombre'] ?? '');
         $descripcion = trim($_POST['descripcion'] ?? '');
@@ -243,6 +243,42 @@ switch ($action) {
         break;
 
 
+    // ✅ CREAR NUEVO VEHÍCULO
+    case 'crearVehiculo':
+        $placa = trim($_POST['placa'] ?? '');
+        $tipo_vehiculo = trim($_POST['tipo_vehiculo'] ?? '');
+        $marca = trim($_POST['marca'] ?? '');
+        $tipo_combustible = trim($_POST['tipo_combustible'] ?? '');
+        $nombre_propietario = trim($_POST['nombre_propietario'] ?? null);
+        $identificacion = trim($_POST['identificacion'] ?? null);
+
+        if (empty($placa) || empty($tipo_vehiculo) || empty($marca) || empty($tipo_combustible)) {
+            echo json_encode(['success' => false, 'message' => 'Placa, tipo, marca y combustible son obligatorios.']);
+            break;
+        }
+
+        // Verificar si ya existe
+        if ($model->existePlaca($placa)) {
+            echo json_encode(['success' => false, 'message' => 'La placa ya está registrada.']);
+            break;
+        }
+
+        $idNuevo = $model->crearVehiculo([
+            'placa' => $placa,
+            'tipo_vehiculo' => $tipo_vehiculo,
+            'marca' => $marca,
+            'tipo_combustible' => $tipo_combustible,
+            'nombre_propietario' => $nombre_propietario,
+            'identificacion' => $identificacion,
+            'id_grabador' => $_SESSION['user_id'] ?? 1
+        ]);
+
+        if ($idNuevo) {
+            echo json_encode(['success' => true, 'message' => 'Vehículo creado correctamente.']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Error al guardar el vehículo.']);
+        }
+        break;
 
 
 
