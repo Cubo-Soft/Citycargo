@@ -39,6 +39,12 @@ require_once '../models/inventoryModel.php';
 $elementos = $model->obtenerElementosInventario();
 $placas = $model->obtenerPlacas(); 
 $inventarios = $model->obtenerInventariosRegistrados();
+$marcas = $model->obtenerMarcas();
+$lineas = $model->obtenerLineas();
+$tiposVehiculo = $model->obtenerTiposVehiculo();
+$carrocerias = $model->obtenerCarrocerias();
+$combustibles = $model->obtenerCombustibles();
+$colores = $model->obtenerColores();
 
 // Layout principal
 include '../views/components/layout/head.php';

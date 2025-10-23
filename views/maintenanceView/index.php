@@ -133,7 +133,7 @@
                         </a>
                     </div>
                     <hr class="horizontal dark mt-2">
-                    <ul class="mt-3 list-unstyled small-muted">
+                    <ul class="mt-3 list-unstyled small-muted" id="listaRevisiones">
                         <?php if (empty($ultimosServicios)): ?>
                             <li class="mb-2">No hay revisiones programadas.</li>
                         <?php else: ?>
@@ -142,32 +142,34 @@
                                 <?php
                                 $fechaProg = new DateTime($serv['fecha_programada']);
                                 $hoy = new DateTime();
-                                $hoy->setTime(0, 0, 0); // Solo comparar días
+                                $hoy->setTime(0, 0, 0);
                                 $fechaProg->setTime(0, 0, 0);
-
-                                // Calcular días que faltan (puede ser negativo si ya pasó, el SQL lo evita)
                                 $diasFaltan = (int) (($fechaProg->getTimestamp() - $hoy->getTimestamp()) / (60 * 60 * 24));
 
-                                // Clase según urgencia
                                 if ($diasFaltan <= 5) {
-                                    $clase = 'text-red'; 
+                                    $clase = 'text-red';
                                 } elseif ($diasFaltan <= 10) {
-                                    $clase = 'text-orange'; 
+                                    $clase = 'text-orange';
                                 } else {
-                                    $clase = 'text-green'; 
+                                    $clase = 'text-green';
                                 }
                                 ?>
+                                <li id="rev-<?= $serv['id_mantenimiento'] ?>"
+                                    class="revision-item d-flex justify-content-between align-items-center py-1 px-1 border-bottom">
+                                    <span>
+                                        <i class="bi bi-truck me-2"></i>
+                                        <a href="javascript:void(0)" class="text-secondary fw-bold text-sm"
+                                            onclick="cargarDatosRevision(<?= (int) $serv['id_mantenimiento'] ?>)">
+                                            <?= htmlspecialchars($serv['placa']) ?> → <?= htmlspecialchars($serv['servicio']) ?>
+                                        </a>
+                                        <small class="<?= $clase ?>">
+                                            Km: <?= number_format($serv['kilometraje_programado'], 0, ',', '.') ?> —
+                                            el <?= date('d/m/Y', strtotime($serv['fecha_programada'])) ?>
+                                        </small>
+                                    </span>
 
-                                <li class="mb-2">
-                                    <i class="bi bi-truck me-2"></i>
-                                    <a href="javascript:void(0)" class="text-secondary font-weight-bolder text-sm"
-                                        onclick="cargarDatosRevision(<?= (int) $serv['id_mantenimiento'] ?>);">
-                                        <?= htmlspecialchars($serv['placa']) ?> → <?= htmlspecialchars($serv['servicio']) ?>
-                                    </a>
-                                    <small class="<?= $clase ?>">
-                                        Km: <?= number_format($serv['kilometraje_programado'], 0, ',', '.') ?> —
-                                        el <?= date('d/m/Y', strtotime($serv['fecha_programada'])) ?>
-                                    </small>
+                                    <i class="fa-solid fa-trash-can text-secondary cursor-pointer eliminar-revision" style="font-size: 0.8rem; cursor:pointer; vertical-align: middle;"
+                                        data-id="<?= $serv['id_mantenimiento'] ?>"></i>
                                 </li>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -229,7 +231,7 @@
     </form>
 </div>
 
-<!-- Inicio Modales -->
+<!--    ***   Inicio Modales   ***    -->
 
 <!-- Modal: Detalle Mantenimiento-->
 <div class="modal fade" id="modalDetail" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -494,7 +496,7 @@
 
 <!-- Submodal: Nueva Placa -->
 <div class="modal fade" id="modalNuevaPlaca" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Registrar Nuevo Vehículo</h5>
@@ -514,75 +516,38 @@
                         <select class="form-select" name="id_marca" required>
                             <option value="">Seleccionar...</option>
                             <?php foreach ($marcas as $m): ?>
-                                    <option value="<?= $m['id_marca'] ?>"><?= htmlspecialchars($m['des_marca']) ?></option>
+                                        <option value="<?= $m['id'] ?>"><?= htmlspecialchars($m['marca']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
 
-                    <!-- Línea -->
+                    <!-- Tipo Vehiculo -->
                     <div class="col-md-4">
-                        <label class="form-label">Línea</label>
-                        <select class="form-select" name="id_linea">
+                        <label class="form-label">Tipo Vehiculo *</label>
+                        <select class="form-select" name="tipovehiculo" required>
                             <option value="">Seleccionar...</option>
-                            <?php foreach ($lineas as $l): ?>
-                                    <option value="<?= $l['id_linea'] ?>"><?= htmlspecialchars($l['des_linea']) ?></option>
+                            <?php foreach ($tiposVehiculo as $t): ?>
+                                        <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['nombre']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
 
                     <!-- Tipo de carrocería -->
                     <div class="col-md-4">
-                        <label class="form-label">Tipo Vehículo *</label>
-                        <select class="form-select" name="id_carroce" required>
-                            <?php foreach ($carrocerias as $c): ?>
-                                    <option value="<?= $c['id_tip_carroce'] ?>"><?= htmlspecialchars($c['des_carroce']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <!-- Tipo de combustible -->
-                    <div class="col-md-4">
-                        <label class="form-label">Combustible *</label>
-                        <select class="form-select" name="id_combust" required>
-                            <?php foreach ($combustibles as $c): ?>
-                                    <option value="<?= $c['id_tip_combus'] ?>"><?= htmlspecialchars($c['des_combus']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <!-- Color -->
-                    <div class="col-md-4">
-                        <label class="form-label">Color</label>
-                        <select class="form-select" name="id_color">
-                            <option value="">Seleccionar...</option>
-                            <?php foreach ($colores as $c): ?>
-                                    <option value="<?= $c['id_color'] ?>"><?= htmlspecialchars($c['des_color']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <!-- Propietario -->
-                    <div class="col-md-6">
-                        <label class="form-label">Propietario</label>
-                        <select class="form-select" name="id_propietario">
-                            <option value="">Seleccionar...</option>
-                            <?php foreach ($propietarios as $p): ?>
-                                    <option value="<?= $p['id_propietario'] ?>"><?= htmlspecialchars($p['nombre']) ?></option>
-                            <?php endforeach; ?>
-                            <option value="nuevo_prop">➕ Nuevo propietario</option>
-                        </select>
+                        <label class="form-label">Tipo Carrocería *</label>
+                        <input type="text" class="form-control" name="tipocarroceria" placeholder="Ej: Furgon/Estacas" required>
                     </div>
 
                     <!-- Modelo (año) -->
-                    <div class="col-md-3">
-                        <label class="form-label">Modelo (año)</label>
-                        <input type="number" class="form-control" name="modelo" min="1900" max="2030">
+                    <div class="col-md-4">
+                        <label class="form-label">Modelo (año) *</label>
+                        <input type="number" class="form-control" name="modelo" min="1900" max="2030" required>
                     </div>
 
                     <!-- Capacidad -->
-                    <div class="col-md-3">
-                        <label class="form-label">Capacidad (kg)</label>
-                        <input type="number" class="form-control" name="capacidad">
+                    <div class="col-md-4">
+                        <label class="form-label">Capacidad (kg) *</label>
+                        <input type="number" class="form-control" name="capacidadcarga" placeholder="Ej: 2500" required>
                     </div>
                 </div>
             </div>

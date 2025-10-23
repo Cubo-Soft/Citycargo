@@ -12,21 +12,6 @@ class maintenanceModel
         $this->conn->set_charset("utf8");
     }
 
-
-    public function obtenerPlacas()
-    {
-        $sql = "SELECT DISTINCT placa FROM tarje_prop_vehiculos WHERE placa IS NOT NULL AND placa != '' ORDER BY placa";
-        $result = $this->conn->query($sql);
-        $placas = [];
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $placas[] = $row['placa'];
-            }
-        }
-        return $placas;
-    }
-
-
     // ✅ OBTENER TODOS LOS MANTENIMIENTOS REALIZADOS
     public function obtenerMantenimientos()
     {
@@ -168,7 +153,8 @@ class maintenanceModel
                 mp.kilometraje_programado
             FROM mantenimiento_programado mp
             INNER JOIN tipo_mantenimiento tm ON mp.id_manteni = tm.id_tipo_manteni
-            WHERE mp.fecha_programada >= CURDATE() 
+            WHERE mp.fecha_programada >= CURDATE()
+            AND mp.estado = 1
             ORDER BY mp.fecha_programada";
 
         $result = $this->conn->query($sql);
@@ -178,6 +164,7 @@ class maintenanceModel
         }
         return $revisiones;
     }
+
 
     // ✅ ACTUALIZAR PROXIMA REVISIÓN 
     public function actualizarProximaRevision($id, $id_tipo_manteni, $fecha_programada, $kilometraje_programado)
@@ -197,6 +184,20 @@ class maintenanceModel
         $stmt->bind_param("issi", $id_tipo_manteni, $fecha_programada, $kilometraje_programado, $id);
         return $stmt->execute();
     }
+
+    // ✅ DESACTIVAR REVISION (marcar como estado = 0)
+    public function desactivarRevision($id)
+    {
+        if (!$id || $id <= 0) {
+            return false;
+        }
+
+        $sql = "UPDATE mantenimiento_programado SET estado = 0 WHERE id_mantenimiento = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        return $stmt->execute();
+    }
+
 
     // ✅ GUARDAR PROXIMA REVISIÓN 
     public function guardarProximaRevision($placa, $fecha_programada, $id_tipo_manteni, $kilometraje)
@@ -325,11 +326,11 @@ class maintenanceModel
         return false;
     }
 
-
+    
     //✅ Obtener marcas usando tabla ya usada
     public function obtenerMarcas()
     {
-        $sql = "SELECT id, marca AS des_marca FROM marcasvehiculos WHERE estado = 1 ORDER BY marca";
+        $sql = "SELECT id, marca FROM marcasvehiculos WHERE estado = 1 ORDER BY marca";
         $result = $this->conn->query($sql);
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
@@ -382,10 +383,106 @@ class maintenanceModel
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
 
+    // ✅ OBTENER PLACAS DESDE VEHICULOS
+    public function obtenerPlacas()
+    {
+        $sql = "SELECT placa FROM vehiculo WHERE estado = 'ACTIVO' ORDER BY placa";
+        $result = $this->conn->query($sql);
+        $placas = [];
+        while ($row = $result->fetch_assoc()) {
+            $placas[] = $row['placa'];
+        }
+        return $placas;
+    }
+
+    // ✅ Obtener tipos de vehículo activos
+    public function obtenerTiposVehiculo()
+    {
+        $sql = "SELECT id, nombre FROM tipovehiculo WHERE id_estados_tablas = 1 ORDER BY nombre";
+        $result = $this->conn->query($sql);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
+    // ✅ OBTENER DATOS DE VEHICULOS
+    public function obtenerDatosVehiculo($placa)
+    {
+        $sql = "
+        SELECT 
+            v.placa,
+            v.marca AS id_marca,
+            m.marca AS nombre_marca,
+            v.tipovehiculo AS tipo_vehiculo,
+            v.tipocarroceria AS carroceria,
+            v.capacidadcarga AS capacidad
+        FROM vehiculo v
+        LEFT JOIN marcasvehiculos m ON v.marca = m.id
+        WHERE v.placa = ? AND v.estado = 'ACTIVO'
+    ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $placa);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+
+    //✅ Verificar si la placa existe
+    // public function existePlaca($placa)
+    // {
+    //     $stmt = $this->conn->prepare("SELECT 1 FROM tarje_prop_vehiculos WHERE placa = ?");
+    //     $stmt->bind_param("s", $placa);
+    //     $stmt->execute();
+    //     return $stmt->get_result()->num_rows > 0;
+    // }
+
+    //✅ Crear nuevo vehículo
+    // public function crearVehiculo($data)
+    // {
+    //     $sql = "INSERT INTO tarje_prop_vehiculos (
+    //     placa, id_marca, id_linea, modelo, cilindraje, id_color,
+    //     id_servicio, id_clase, id_carroce, id_combust, capacidad,
+    //     num_motor, vin, num_serie, num_chasis, id_propietario,
+    //     decla_importacion, blindaje, potencia, fec_matricula,
+    //     fec_exp_li_tto, org_tto_matricula, id_grabador
+    // ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    //     $stmt = $this->conn->prepare($sql);
+    //     $stmt->bind_param(
+    //         "siiiiiiiiiiissssisiiisssi",
+    //         $placa,
+    //         $id_marca,
+    //         $id_linea,
+    //         $modelo,
+    //         $cilindraje,
+    //         $id_color,
+    //         $id_servicio,
+    //         $id_clase,
+    //         $id_carroce,
+    //         $id_combust,
+    //         $capacidad,
+    //         $num_motor,
+    //         $vin,
+    //         $num_serie,
+    //         $num_chasis,
+    //         $id_propietario,
+    //         $decla_importacion,
+    //         $blindaje,
+    //         $potencia,
+    //         $fec_matricula,
+    //         $fec_exp_li_tto,
+    //         $org_tto_matricula,
+    //         $id_grabador
+    //     );
+
+    //     if ($stmt->execute()) {
+    //         return $this->conn->insert_id;
+    //     }
+
+    //     return false;
+    // }
+
     //✅ Verificar si la placa existe
     public function existePlaca($placa)
     {
-        $stmt = $this->conn->prepare("SELECT 1 FROM tarje_prop_vehiculos WHERE placa = ?");
+        $stmt = $this->conn->prepare("SELECT 1 FROM vehiculo WHERE placa = ?");
         $stmt->bind_param("s", $placa);
         $stmt->execute();
         return $stmt->get_result()->num_rows > 0;
@@ -394,25 +491,56 @@ class maintenanceModel
     //✅ Crear nuevo vehículo
     public function crearVehiculo($data)
     {
-        $sql = "INSERT INTO tarje_prop_vehiculos (
-        placa, id_marca, id_linea, modelo, cilindraje, id_color,
-        id_servicio, id_clase, id_carroce, id_combust, capacidad,
-        num_motor, vin, num_serie, num_chasis, id_propietario,
-        decla_importacion, blindaje, potencia, fec_matricula,
-        fec_exp_li_tto, org_tto_matricula, id_grabador
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        // ✅ Extraer TODOS los campos con valores por defecto
+        $placa = $data['placa'] ?? '';
+        $id_marca = (int) ($data['id_marca'] ?? 0);
+        $modelo = (int) ($data['modelo'] ?? 0);
+        $tipocarroceria = $data['tipocarroceria'] ?? '';
+        $capacidadcarga = (int) ($data['capacidadcarga'] ?? 0);
+        $ancho = 0.00;
+        $largo = 0.00;
+        $alto = 0.00;
+        $tipovehiculo = $data['tipovehiculo'] ?? '';
+        $estado = 'ACTIVO';
+        $reportar_novedad = 0;
 
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("siiiiiiiiiiissssisiiisssi",$placa,$id_marca, $id_linea, $modelo, $cilindraje, $id_color, $id_servicio,
-            $id_clase, $id_carroce, $id_combust, $capacidad, $num_motor, $vin, $num_serie, $num_chasis, $id_propietario, $decla_importacion, $blindaje,
-            $potencia, $fec_matricula, $fec_exp_li_tto, $org_tto_matricula, $id_grabador);
-
-        if ($stmt->execute()) {
-            return $this->conn->insert_id;
+        // ✅ Validar obligatorios
+        if (
+            empty($placa) || !$id_marca || empty($tipovehiculo) ||
+            empty($tipocarroceria) || !$modelo || !$capacidadcarga
+        ) {
+            return false;
         }
 
-        return false;
+        if ($this->existePlaca($placa)) {
+            return false;
+        }
+
+        $sql = "INSERT INTO vehiculo (
+        placa, marca, modelo, tipocarroceria, capacidadcarga,
+        ancho, largo, alto, tipovehiculo, estado, reportar_novedad
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param(
+            "siisidddssi",
+            $placa,
+            $id_marca,
+            $modelo,
+            $tipocarroceria,
+            $capacidadcarga,
+            $ancho,
+            $largo,
+            $alto,
+            $tipovehiculo,
+            $estado,
+            $reportar_novedad
+        );
+
+        return $stmt->execute();
     }
+
+
 
 
 

@@ -12,39 +12,38 @@
                         <!-- Datos del vehículo -->
                         <div class="row mb-4">
                             <div class="col-md-3">
-                                <label class="form-label">Placa</label>
-                                <select class="form-select" name="placa" required>
-                                    <option value="">Seleccionar placa</option>
-                                    <?php foreach ($placas as $p): ?>
-                                        <option value="<?= htmlspecialchars($p) ?>"><?= htmlspecialchars($p) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                    <option value="nueva" class="text-green">➕ Agregar nueva Placa</option>
-                                </select>
-                            </div>
+                            <label for="placa" class="form-label">Placa</label>
+                            <select class="form-select" name="placa" id="selectPlaca" required>
+                                <option value="">Seleccionar placa</option>
+                                <?php foreach ($placas as $p): ?>
+                                    <option value="<?= htmlspecialchars($p) ?>"><?= htmlspecialchars($p) ?></option>
+                                <?php endforeach; ?>
+                                <option value="nuevo" class="text-green">➕ Nueva placa</option>
+                            </select>
+                        </div>
                             <div class="col-md-3">
                                 <label class="form-label">Nombre Propietario</label>
-                                <input type="text" class="form-control" name="Nombre"
+                                <input type="text" class="form-control" name="nombre" id="nombre_propietario"
                                     placeholder="Nombre (ej. Jhon Doe)" required>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Identificación</label>
-                                <input type="number" class="form-control" name="Cédula"
+                                <input type="number" class="form-control" name="cedula" id="cedula_propietario"
                                     placeholder="Cédula (ej. 83765422)" required>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Tipo Vehiculo</label>
-                                <input type="text" class="form-control" name="tipo_vehiculo"
+                                <input type="text" class="form-control" name="tipo_vehiculo" id="tipo_vehiculo"
                                     placeholder="tipo vehiculo (ej. Estacas,Furgon)" required>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Marca</label>
-                                <input type="text" class="form-control" name="marca" placeholder="marca (ej. Toyota)"
+                                <input type="text" class="form-control" name="marca" placeholder="marca (ej. Toyota)" id="marca"
                                     required>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Tipo Carroceria</label>
-                                <input type="text" class="form-control" name="tipo_combustible"
+                                <input type="text" class="form-control" name="tipo_carroceria" id="tipo_carroceria"
                                     placeholder="tipo combustible (ej. Diesel)" required>
                             </div>
                             <div class="col-md-3">
@@ -52,9 +51,14 @@
                                 <input type="date" class="form-control" name="fecha" value="<?= date('Y-m-d') ?>"
                                     required>
                             </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Kilometraje</label>
+                                <input type="number" class="form-control" name="kilometraje" placeholder="marca (ej. 123000)" 
+                                    required>
+                            </div>
                         </div>
 
-                        <!-- Acordion de secciones -->
+                        <!-- Acordeon de secciones -->
                         <div class="accordion" id="accordionInventario">
                             <?php
                             $secciones = [
@@ -241,6 +245,8 @@
     </div>
 </div>
 
+<!--    ***   inicio modales   ***  -->
+
 <!-- Modal ver inventario -->
 <div class="modal fade" id="modalDetalleInventario" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -252,6 +258,71 @@
             <div class="modal-body">
                 <!-- Aquí se cargará el contenido vía AJAX -->
                 <div id="contenidoInventario"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submodal: Nueva Placa -->
+<div class="modal fade" id="modalNuevaPlaca" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Registrar Nuevo Vehículo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2">
+                    <!-- Placa -->
+                    <div class="col-md-4">
+                        <label class="form-label">Placa *</label>
+                        <input type="text" class="form-control" name="placa" required>
+                    </div>
+
+                    <!-- Marca -->
+                    <div class="col-md-4">
+                        <label class="form-label">Marca *</label>
+                        <select class="form-select" name="id_marca" required>
+                            <option value="">Seleccionar...</option>
+                            <?php foreach ($marcas as $m): ?>
+                                <option value="<?= $m['id'] ?>"><?= htmlspecialchars($m['marca']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Tipo Vehiculo -->
+                    <div class="col-md-4">
+                        <label class="form-label">Tipo Vehiculo *</label>
+                        <select class="form-select" name="tipovehiculo" required>
+                            <option value="">Seleccionar...</option>
+                            <?php foreach ($tiposVehiculo as $t): ?>
+                                <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['nombre']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Tipo de carrocería -->
+                    <div class="col-md-4">
+                        <label class="form-label">Tipo Carrocería *</label>
+                        <input type="text" class="form-control" name="tipocarroceria" placeholder="Ej: Furgon/Estacas" required>
+                    </div>
+
+                    <!-- Modelo (año) -->
+                    <div class="col-md-4">
+                        <label class="form-label">Modelo (año) *</label>
+                        <input type="number" class="form-control" name="modelo" min="1900" max="2030" required>
+                    </div>
+
+                    <!-- Capacidad -->
+                    <div class="col-md-4">
+                        <label class="form-label">Capacidad (kg) *</label>
+                        <input type="number" class="form-control" name="capacidadcarga" placeholder="Ej: 2500" required>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarPlaca">Guardar Vehículo</button>
             </div>
         </div>
     </div>

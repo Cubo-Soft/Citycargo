@@ -18,12 +18,13 @@ $tiposMantenimiento = $model->obtenerTiposMantenimiento();
 $placas = $model->obtenerPlacas();
 
 // Cargar catálogos para el modal
-// $marcas = $model->obtenerMarcas();
-// $lineas = $model->obtenerLineas();
-// $carrocerias = $model->obtenerCarrocerias();
-// $combustibles = $model->obtenerCombustibles();
-// $colores = $model->obtenerColores();
-// $propietarios = $model->obtenerPropietarios();
+$marcas = $model->obtenerMarcas();
+$lineas = $model->obtenerLineas();
+$tiposVehiculo = $model->obtenerTiposVehiculo();
+$carrocerias = $model->obtenerCarrocerias();
+$combustibles = $model->obtenerCombustibles();
+$colores = $model->obtenerColores();
+//$propietarios = $model->obtenerPropietarios();
 
 
 // Layout principal

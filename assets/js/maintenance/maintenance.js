@@ -209,9 +209,13 @@ $(document).ready(function () {
                     let data = res.data;
 
                     $('#modalNew').modal('show');
+                    // ✅ Reemplazar el select de placa por un input readonly
+                    $('#selectPlaca').replaceWith(
+                        `<input type="text" id="inputPlaca" name="placa" value="${data.placa}" class="form-control" readonly>`
+                    );
 
                     // ✅ Solo en el formulario del modal (#formNew)
-                    $('#formNew input[name="placa"]').val(data.placa).prop('readonly', true);
+
                     $('#formNew input[name="num_factura"]').val(data.factura).prop('readonly', true);
                     $('#formNew input[name="costo"]').val(data.valor).prop('readonly', true);
 
@@ -571,14 +575,14 @@ $(document).ready(function () {
     // ✅ GUARDAR NUEVA PLACA
     $(document).on('click', '#btnGuardarPlaca', function () {
         const placa = $('#modalNuevaPlaca input[name="placa"]').val().trim();
-        const tipo_vehiculo = $('#modalNuevaPlaca input[name="tipo_vehiculo"]').val().trim();
-        const marca = $('#modalNuevaPlaca input[name="marca"]').val().trim();
-        const tipo_combustible = $('#modalNuevaPlaca input[name="tipo_combustible"]').val().trim();
-        const nombre_propietario = $('#modalNuevaPlaca input[name="nombre_propietario"]').val().trim();
-        const identificacion = $('#modalNuevaPlaca input[name="identificacion"]').val().trim();
+        const id_marca = $('#modalNuevaPlaca select[name="id_marca"]').val();
+        const tipovehiculo = $('#modalNuevaPlaca select[name="tipovehiculo"]').val();
+        const tipocarroceria = $('#modalNuevaPlaca input[name="tipocarroceria"]').val().trim();
+        const modelo = $('#modalNuevaPlaca input[name="modelo"]').val();
+        const capacidadcarga = $('#modalNuevaPlaca input[name="capacidadcarga"]').val();
 
-        if (!placa || !tipo_vehiculo || !marca || !tipo_combustible) {
-            Swal.fire('Advertencia', 'Placa, tipo, marca y combustible son obligatorios.', 'warning');
+        if (!placa || !id_marca || !tipovehiculo || !tipocarroceria || !modelo || !capacidadcarga) {
+            Swal.fire('Advertencia', 'Todos los campos son obligatorios.', 'warning');
             return;
         }
 
@@ -588,11 +592,11 @@ $(document).ready(function () {
             data: {
                 action: 'crearVehiculo',
                 placa: placa,
-                tipo_vehiculo: tipo_vehiculo,
-                marca: marca,
-                tipo_combustible: tipo_combustible,
-                nombre_propietario: nombre_propietario,
-                identificacion: identificacion
+                id_marca: id_marca,
+                tipovehiculo: tipovehiculo,
+                tipocarroceria: tipocarroceria,
+                modelo: modelo,
+                capacidadcarga: capacidadcarga
             },
             dataType: 'json',
             success: function (res) {
@@ -626,7 +630,126 @@ $(document).ready(function () {
 
 
 
+
+
 });
+
+
+// ✅ Versión mejorada: oculta la revisión y la marca como inactiva (estado = 0) en BD
+(function () {
+    // Helper: busca hacia arriba un elemento con la clase o con data-id
+    function findEliminarTarget(el) {
+        while (el && el !== document) {
+            if (el.classList && el.classList.contains('eliminar-revision')) return el;
+            if (el.dataset && el.dataset.id) return el;
+            el = el.parentNode;
+        }
+        return null;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const lista = document.getElementById('listaRevisiones');
+        if (!lista) {
+            console.warn('maintenance.js: no se encontró #listaRevisiones');
+            return;
+        }
+
+        lista.addEventListener('click', function (e) {
+            const target = findEliminarTarget(e.target);
+            if (!target) return;
+
+            let id = target.dataset.id || null;
+            if (!id) {
+                const li = e.target.closest('li[id^="rev-"]');
+                if (li) id = li.id.replace(/^rev-/, '');
+            }
+
+            if (!id) {
+                console.warn('maintenance.js: no se pudo obtener id de la revisión');
+                return;
+            }
+
+            const liToRemove = document.getElementById('rev-' + id);
+            if (!liToRemove) {
+                console.warn('maintenance.js: no se encontró el <li> rev-' + id);
+                return;
+            }
+
+            Swal.fire({
+                toast: true,
+                position: 'bottom-end',
+                title: '¿Quitar de la vista?',
+                text: 'Esta revisión se ocultará y se marcará como inactiva en el registro de datos.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, ocultar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d'
+            }).then(function (result) {
+                if (!result.isConfirmed) return;
+
+                // ✅ Enviar al backend para marcar como inactiva
+                $.ajax({
+                    url: '../controllers/maintenanceAjax.php',
+                    type: 'POST',
+                    data: { action: 'deleteRevision', id: id },
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.success) {
+                            // Animación suave al quitar
+                            liToRemove.style.transition =
+                                'opacity 0.28s ease, transform 0.28s ease, height 0.28s ease, margin 0.28s ease, padding 0.28s ease';
+                            const h = liToRemove.getBoundingClientRect().height + 'px';
+                            liToRemove.style.height = h;
+                            liToRemove.offsetHeight;
+                            liToRemove.style.opacity = '0';
+                            liToRemove.style.height = '0';
+                            liToRemove.style.margin = '0';
+                            liToRemove.style.paddingTop = '0';
+                            liToRemove.style.paddingBottom = '0';
+
+                            setTimeout(function () {
+                                liToRemove.remove();
+                                const listaEl = document.getElementById('listaRevisiones');
+                                if (listaEl && listaEl.children.length === 0) {
+                                    listaEl.innerHTML =
+                                        '<li class="mb-2 text-muted">No hay revisiones programadas.</li>';
+                                }
+                            }, 320);
+
+                            // Toast de confirmación
+                            Swal.fire({
+                                toast: true,
+                                position: 'bottom-end',
+                                icon: 'success',
+                                title: res.message || 'Revisión desactivada correctamente',
+                                showConfirmButton: false,
+                                timer: 2000,
+                                timerProgressBar: true,
+                                customClass: { popup: 'swal2-toast-compact' }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: res.message || 'No se pudo actualizar la revisión'
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de conexión',
+                            text: xhr.responseText || 'No se pudo conectar con el servidor'
+                        });
+                    }
+                });
+            });
+        });
+    });
+})();
+
 
 
 // ✅ FUNCIÓN GLOBAL PARA CARGAR DATOS DE REVISIÓN
