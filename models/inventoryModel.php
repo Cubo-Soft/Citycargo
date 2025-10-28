@@ -58,10 +58,10 @@ class inventoryModel
             ie.identificacion,
             ie.tipo_vehiculo,
             ie.marca,
-            ie.tipo_combustible,
+            ie.tipo_carroceria,
             ie.fecha_inven AS fecha
         FROM inve_encabezado ie
-        ORDER BY ie.fecha_inven DESC, ie.creado_en DESC
+        ORDER BY ie.fecha_inven DESC
     ";
 
         $result = $this->conn->query($sql);
@@ -257,6 +257,114 @@ class inventoryModel
 
         return $stmt->execute();
     }
+
+    // ✅ Guardar Inventario
+    public function guardarInventarioCompleto($encabezado, $detalle, $idUsuario)
+    {
+        $this->conn->autocommit(FALSE);
+        try {
+            // 1. Insertar encabezado
+            $sqlEnc = "INSERT INTO inve_encabezado (
+            placa, nombre_propietario, identificacion, tipo_vehiculo,
+            marca, tipo_carroceria, kilometraje, fecha_inven, observaciones_generales, id_grabador
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            $stmt = $this->conn->prepare($sqlEnc);
+            $stmt->bind_param(
+                "sssssisssi",
+                $encabezado['placa'],
+                $encabezado['nombre_propietario'],
+                $encabezado['identificacion'],
+                $encabezado['tipo_vehiculo'],
+                $encabezado['marca'],
+                $encabezado['tipo_carroceria'],
+                $encabezado['kilometraje'],
+                $encabezado['fecha'],
+                $encabezado['observaciones_generales'],
+                $idUsuario
+            );
+            $stmt->execute();
+            $idEncabezado = $this->conn->insert_id;
+
+            // 2. Obtener mapa de elementos
+            $mapa = $this->obtenerMapaElementos();
+
+            // 3. Insertar SOLO los elementos que tienen estado definido
+            $totalInsertados = 0;
+            foreach ($detalle as $seccion => $elementos) {
+                foreach ($elementos as $nombre => $valores) {
+                    // ✅ Validar que 'estado' sea uno de los permitidos
+                    $estado = trim($valores['estado'] ?? '');
+                    if (!in_array($estado, ['bueno', 'regular', 'mal'])) {
+                        continue; // Ignorar si no es válido
+                    }
+
+                    $idElemento = $mapa[strtoupper($nombre)] ?? null;
+                    if (!$idElemento) {
+                        continue;
+                    }
+
+                    $idElemento = $mapa[strtoupper($nombre)] ?? null;
+                    if (!$idElemento)
+                        continue;
+
+                    $estadoMap = ['bueno' => 1, 'regular' => 2, 'mal' => 3];
+                    $idEstado = $estadoMap[$valores['estado']] ?? 1;
+
+                    $sqlDet = "INSERT INTO inve_vehiculo (
+                    placa, id_inve_encabezado, id_elemen_inve, id_estado_inve, 
+                    cantidad, observacion_uno, fecha_inven, id_grabador
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+                    $stmtDet = $this->conn->prepare($sqlDet);
+                    $cantidad = !empty($valores['cantidad']) ? $valores['cantidad'] : null;
+                    $obs = !empty($valores['observacion']) ? $valores['observacion'] : null;
+                    $stmtDet->bind_param(
+                        "siiiiiss",
+                        $encabezado['placa'],
+                        $idEncabezado,
+                        $idElemento,
+                        $idEstado,
+                        $cantidad,
+                        $obs,
+                        $encabezado['fecha'],
+                        $idUsuario
+                    );
+                    $stmtDet->execute();
+                    $totalInsertados++;
+                }
+            }
+
+            // ✅ Validar que se hayan insertado elementos
+            if ($totalInsertados == 0) {
+                throw new Exception("Debe llenar al menos un elemento del inventario.");
+            }
+
+            $this->conn->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->conn->rollback();
+            throw $e;
+        } finally {
+            $this->conn->autocommit(TRUE);
+        }
+    }
+
+    private function obtenerMapaElementos()
+    {
+        $sql = "SELECT id_tip_elemento, UPPER(des_elemento) as clave FROM tipos_elementos";
+        $result = $this->conn->query($sql);
+        $mapa = [];
+        while ($row = $result->fetch_assoc()) {
+            $mapa[$row['clave']] = $row['id_tip_elemento'];
+        }
+        return $mapa;
+    }
+
+
+
+
+
 
 
 

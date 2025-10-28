@@ -140,6 +140,7 @@
 <script src="../assets/js/soft-ui-dashboard.min.js?v=1.1.0"></script>
 <!-- Scripts personalizados! -->
 <script src="../assets/js/maintenance/maintenance.js"></script>
+<script src="../assets/js/inventory/inventory.js"></script>
 
 
 <script>

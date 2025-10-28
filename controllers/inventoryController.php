@@ -8,33 +8,34 @@ if (!isset($_SESSION["rol_id"])) {
 require_once '../models/inventoryModel.php';
     $model = new inventoryModel();
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-// Definir los elementos del inventario
-// $elementos = [ 
-//     'cabina_interna' => [
-//         'KILOMETRAJE', 'GUANTERA', 'SILLAS', 'VIDRIOS', 'RADIO', 'CINTURON DE SEGURIDAD',
-//         'ENCENDEDOR', 'COJINERIA', 'TAPETES', 'ESPEJO RETROVISOR', 'SISTEMA DE VIDRIOS',
-//         'TECHO', 'PITO', 'COMANDO DE CONTROL (AIRE ACONDICIONADO)', 'FORRO BARRA CAMBIOS',
-//         'COMANDOS DE CONTROL (TABLEROS)'
-//     ],
-//     'cabina_externa' => [
-//         'FAROLAS', 'LUCES EXPLORADORAS', 'ANTENA', 'PERSIANA', 'PARABRISAS',
-//         'MARCA-EMBLEMA VEHICULO', 'PLACA', 'ESPEJO DERECHO', 'ESPEJO IZQUIERDO',
-//         'PUERTA DERECHA', 'GUARDABARRO DERECHO', 'PUERTA IZQUIERDA', 'GUARDABARRO IZQUIERDO'
-//     ],
-//     'furgon' => [
-//         'LATERAL IZQUIERDO', 'LUCES LATERAL IZQUIERDO', 'PARAL TRASERO IZQUIERDO',
-//         'LATERAL DERECHO', 'LUCES LATERAL DERECHO', 'PARAL TRASERO DERECHO',
-//         'PUERTA FRONTAL', 'PARTE INTERNA FURGON', 'PUERTAS', 'CANDADO'
-//     ],
-//     'kit_carretera' => [
-//         'GATO', 'EXTINTOR', 'CONOS', 'BARRAS COPA DE RUEDAS', 'BARRAS GATO',
-//         'CASCO', 'GUANTES', 'BOTIQUIN'
-//     ],
-//     'otros' => [
-//         'KIT DE HERRAMIENTA', 'TAPA DE COMBUSTIBLE', 'LLANTA DE REPUESTO'
-//     ]
-// ];
+    $datosEncabezado = [
+        'placa' => $_POST['placa'] ?? '',
+        'Nombre' => $_POST['Nombre'] ?? '',
+        'Cédula' => $_POST['Cédula'] ?? '',
+        'tipo_vehiculo' => $_POST['tipo_vehiculo'] ?? '',
+        'marca' => $_POST['marca'] ?? '',
+        'tipo_combustible' => $_POST['tipo_combustible'] ?? '',
+        'kilometraje' => $_POST['kilometraje'] ?? '',
+        'fecha' => $_POST['fecha'] ?? date('Y-m-d'),
+        'observaciones_generales' => $_POST['observaciones_generales'] ?? ''
+    ];
+
+    $detalleInventario = $_POST['detalle'] ?? [];
+
+    if (empty($datosEncabezado['placa'])) {
+        $error = "La placa es obligatoria.";
+    } else {
+        try {
+            $model->guardarInventarioCompleto($datosEncabezado, $detalleInventario, $idGrabador);
+            header("Location: " . $_SERVER['PHP_SELF'] . "?msg=success");
+            exit;
+        } catch (Exception $e) {
+            $error = "Error al guardar: " . $e->getMessage();
+        }
+    }
+}
 
 $elementos = $model->obtenerElementosInventario();
 $placas = $model->obtenerPlacas(); 

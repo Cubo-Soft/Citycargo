@@ -85,22 +85,64 @@ $(document).on('change', '#selectPlaca', function () {
         success: function (response) {
             if (response.success && response.data) {
                 const d = response.data;
-                $('#nombre_propietario').val(d.Nombre || '');
-                $('#cedula_propietario').val(d.Cedula || '');
-                $('#tipo_vehiculo').val(d.tipo_vehiculo || '');
-                $('#marca').val(d.marca || '');
-                $('#tipo_carroceria').val(d.tipo_carroceria || '');
+                $('input[name="nombre_propietario"]').val(d.Nombre || '');
+                $('input[name="identificacion"]').val(d.Cedula || '');
+                $('input[name="tipo_vehiculo"]').val(d.tipo_vehiculo || '');
+                $('input[name="marca"]').val(d.marca || '');
+                $('input[name="tipo_carroceria"]').val(d.tipo_carroceria || '');
             } else {
-                $('#nombre_propietario').val('');
-                $('#cedula_propietario').val('');
-                $('#tipo_vehiculo').val('');
-                $('#marca').val('');
-                $('#tipo_carroceria').val('');
+                $('input[name="nombre_propietario"]').val('');
+                $('input[name="identificacion"]').val('');
+                $('input[name="tipo_vehiculo"]').val('');
+                $('input[name="marca"]').val('');
+                $('input[name="tipo_carroceria"]').val('');
                 Swal.fire('Info', response.message || 'No se encontraron datos.', 'info');
             }
         },
         error: function () {
             Swal.fire('Error', 'No se pudieron cargar los datos del vehículo.', 'error');
+        }
+    });
+});
+
+// ✅ GUARDAR INVENTARIO COMPLETO
+$(document).on('submit', '#formInventario', function (e) {
+    e.preventDefault(); // ← Evita la recarga
+
+    let elementosValidos = 0;
+    $(this).find('select[name$="[estado]"]').each(function () {
+        if (['bueno', 'regular', 'mal'].includes($(this).val())) {
+            elementosValidos++;
+        }
+    });
+
+    if (elementosValidos === 0) {
+        Swal.fire('Advertencia', 'Debe seleccionar al menos un estado para algún elemento.', 'warning');
+        return;
+    }
+
+    const formData = new FormData(this);
+    formData.append('action', 'guardarInventario');
+
+    $.ajax({
+        url: '../controllers/inventoryAjax.php',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: 'json',
+        success: function (res) {
+            if (res.success) {
+                Swal.fire('Éxito', 'Inventario guardado correctamente.', 'success').then(() => {
+                    $('#formInventario')[0].reset(); // Limpiar formulario
+                    location.reload();
+                });
+            } else {
+                Swal.fire('Error', res.message || 'Error al guardar.', 'error');
+            }
+        },
+        error: function () {
+            Swal.fire('Error', 'Error de conexión al guardar el inventario.', 'error');
         }
     });
 });

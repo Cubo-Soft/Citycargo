@@ -29,7 +29,7 @@ switch ($action) {
         if ($datos) {
             echo json_encode(['success' => true, 'data' => $datos]);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Vehículo no encontrado o sin propietario asignado.']);
+            echo json_encode(['success' => false, 'message' => 'Vehículo no encontrado.']);
         }
         break;
 
@@ -42,10 +42,7 @@ switch ($action) {
         $modelo = (int) ($_POST['modelo'] ?? 0);
         $capacidadcarga = (int) ($_POST['capacidadcarga'] ?? 0);
 
-        if (
-            empty($placa) || !$id_marca || empty($tipovehiculo) ||
-            empty($tipocarroceria) || !$modelo || !$capacidadcarga
-        ) {
+        if (empty($placa) || !$id_marca || empty($tipovehiculo) || empty($tipocarroceria) || !$modelo || !$capacidadcarga) {
             echo json_encode(['success' => false, 'message' => 'Todos los campos son obligatorios.']);
             break;
         }
@@ -64,15 +61,44 @@ switch ($action) {
         }
         break;
 
+    // ✅ GUARDAR INVENTARIO COMPLETO
+    case 'guardarInventario':
+        try {
+            // ✅ Usar emp_id directamente de la sesión
+            if (!isset($_SESSION['emp_id'])) {
+                throw new Exception("Usuario no autenticado correctamente.");
+            }
+            $idGrabador = (int)$_SESSION['emp_id'];
 
+            if ($idGrabador <= 0) {
+                throw new Exception("ID de usuario inválido.");
+            }
+error_log("POST recibido: " . print_r($_POST, true));
+            $datosEncabezado = [
+                'placa' => $_POST['placa'] ?? '',
+                'nombre_propietario' => $_POST['nombre_propietario'] ?? '',
+                'identificacion' => $_POST['identificacion'] ?? '',
+                'tipo_vehiculo' => $_POST['tipo_vehiculo'] ?? '',
+                'marca' => $_POST['marca'] ?? '',
+                'tipo_carroceria' => $_POST['tipo_carroceria'] ?? '',
+                'kilometraje' => !empty($_POST['kilometraje']) ? (int)$_POST['kilometraje'] : 0,
+                'fecha' => $_POST['fecha'] ?? date('Y-m-d'),
+                'observaciones_generales' => $_POST['observaciones_generales'] ?? ''
+            ];
 
+            if (empty($datosEncabezado['placa'])) {
+                throw new Exception("La placa es obligatoria.");
+            }
 
+            $detalleInventario = $_POST['detalle'] ?? [];
+            $model->guardarInventarioCompleto($datosEncabezado, $detalleInventario, $idGrabador);
 
-
-
-
-
-
+            echo json_encode(['success' => true, 'message' => 'Inventario guardado correctamente.']);
+        } catch (Exception $e) {
+            error_log("Error en guardarInventario: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        break;
 
     default:
         echo json_encode(['success' => false, 'message' => 'Acción no válida']);
