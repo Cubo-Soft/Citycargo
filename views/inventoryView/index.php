@@ -12,7 +12,7 @@
                         <!-- Datos del vehículo -->
                         <div class="row mb-4">
                             <div class="col-md-3">
-                                <label for="placa" class="form-label">Placa</label>
+                                <label for="placa" class="form-label">Placa *</label>
                                 <select class="form-select" name="placa" id="selectPlaca" required>
                                     <option value="">Seleccionar placa</option>
                                     <?php foreach ($placas as $p): ?>
@@ -22,39 +22,39 @@
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Nombre Propietario</label>
-                                <input type="text" class="form-control" name="nombre_propietario" id="nombre_propietario"
-                                    placeholder="Nombre (ej. Jhon Doe)" required>
+                                <label class="form-label">Nombre Propietario *</label>
+                                <input type="text" class="form-control" name="nombre_propietario"
+                                    id="nombre_propietario" placeholder="Nombre (Ej. Jhon Doe)" required>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Identificación</label>
+                                <label class="form-label">Identificación *</label>
                                 <input type="number" class="form-control" name="identificacion" id="identificacion"
-                                    placeholder="Cédula (ej. 83765422)" required>
+                                    placeholder="Cédula (Ej. 83765422)" required>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Tipo Vehiculo</label>
+                                <label class="form-label">Tipo Vehiculo *</label>
                                 <input type="text" class="form-control" name="tipo_vehiculo" id="tipo_vehiculo"
-                                    placeholder="tipo vehiculo (ej. Estacas,Furgon)" required>
+                                    placeholder="tipo vehiculo (Ej. Estacas,Furgon)" required>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Marca</label>
-                                <input type="text" class="form-control" name="marca" placeholder="marca (ej. Toyota)"
+                                <label class="form-label">Marca *</label>
+                                <input type="text" class="form-control" name="marca" placeholder="marca (Ej. Toyota)"
                                     id="marca" required>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Tipo Carroceria</label>
+                                <label class="form-label">Tipo Carroceria *</label>
                                 <input type="text" class="form-control" name="tipo_carroceria" id="tipo_carroceria"
-                                    placeholder="tipo combustible (ej. Diesel)" required>
+                                    placeholder="tipo combustible (Ej. Furgon, Estacas)" required>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Fecha</label>
+                                <label class="form-label">Fecha *</label>
                                 <input type="date" class="form-control" name="fecha" value="<?= date('Y-m-d') ?>"
                                     required>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Kilometraje</label>
+                                <label class="form-label">Kilometraje *</label>
                                 <input type="number" class="form-control" name="kilometraje"
-                                    placeholder="marca (ej. 123000)" required>
+                                    placeholder="Kilometraje (Ej. 123000)" required>
                             </div>
                         </div>
 
@@ -69,7 +69,6 @@
                                 'Kit de Carretera' => ['icono' => '🧰', 'clave_form' => 'kit_carretera'],
                                 'Botiquín Médico' => ['icono' => '🩹', 'clave_form' => 'botiquin'],
                                 'Otros Elementos' => ['icono' => '🔧', 'clave_form' => 'otros'],
-                                
                             ];
 
                             foreach ($mapeo as $nombreSeccionBD => $config):
@@ -96,7 +95,8 @@
                                                     <?php foreach ($items as $item): ?>
                                                         <div class="col-12">
                                                             <div class="row align-items-center">
-                                                                <div class="col-md-3 fw-bold text-sm"><?= htmlspecialchars($item) ?></div>
+                                                                <div class="col-md-3 fw-bold text-sm"><?= htmlspecialchars($item) ?>
+                                                                </div>
                                                                 <div class="col-md-3">
                                                                     <select
                                                                         name="detalle[<?= htmlspecialchars($config['clave_form']) ?>][<?= htmlspecialchars($item) ?>][estado]"
@@ -198,12 +198,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php
-                                        // Ordenar inventarios por fecha (más reciente primero)
-                                        usort($inventarios, function ($a, $b) {
-                                            return strtotime($b['fecha']) - strtotime($a['fecha']); // Descendente
-                                        });
-                                        ?>
+
 
                                         <?php if (empty($inventarios)): ?>
                                             <tr>
@@ -231,7 +226,7 @@
                                                     </td>
                                                     <td class="align-middle">
                                                         <a href="javascript:;"
-                                                            class="text-secondary font-weight-bolder text-xs btn-ver-detalle"
+                                                            class="text-secondary font-weight-bolder text-xs btn-inventario-detalle"
                                                             data-id="<?= $inv['id'] ?>" data-bs-toggle="modal"
                                                             data-bs-target="#modalDetalleInventario">
                                                             Ver
@@ -253,17 +248,170 @@
 
 <!--    ***   inicio modales   ***  -->
 
-<!-- Modal ver inventario -->
-<div class="modal fade" id="modalDetalleInventario" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+<!-- Modal VER inventario -->
+<div class="modal fade" id="modalDetalleInventario" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Detalle de Inventario</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <!-- Aquí se cargará el contenido vía AJAX -->
-                <div id="contenidoInventario"></div>
+                <div class="contenido-scrollable" style="max-height: 70vh; overflow-y: auto;">
+                    <div class="p-4" id="contenidoInventario"></div>
+                    <!-- Aquí se carga el contenido vía AJAX -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" id="btnEditarInventario" data-id="">Editar</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal EDITAR inventario -->
+<div class="modal fade" id="modalEditarInventario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Inventario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="contenido-scrollable" style="max-height: 60vh; overflow-y: auto;">
+                    <div class="p-4">
+                        <form id="formEdicionInventario">
+                            <input type="hidden" id="id_inventario_edit" name="id_inventario">
+
+                            <!-- Datos del vehículo -->
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <label for="placa_edit" class="form-label">Placa</label>
+                                    <input type="text" class="form-control" name="placa_edit" id="placa_edit" readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Nombre Propietario</label>
+                                    <input type="text" class="form-control" name="nombre_propietario_edit"
+                                        placeholder="Nombre (ej. Jhon Doe)" readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Identificación</label>
+                                    <input type="number" class="form-control" name="identificacion_edit"
+                                        placeholder="Cédula (ej. 83765422)" readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Tipo Vehiculo</label>
+                                    <input type="text" class="form-control" name="tipo_vehiculo_edit"
+                                        placeholder="tipo vehiculo (ej. Estacas,Furgon)" readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Marca</label>
+                                    <input type="text" class="form-control" name="marca_edit"
+                                        placeholder="marca (ej. Toyota)" readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Tipo Carroceria</label>
+                                    <input type="text" class="form-control" name="tipo_carroceria_edit"
+                                        placeholder="tipo carroceria (ej. Furgon)" readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Fecha</label>
+                                    <input type="date" class="form-control" name="fecha_edit" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Kilometraje</label>
+                                    <input type="number" class="form-control" name="kilometraje_edit"
+                                        placeholder="kilometraje (ej. 123000)" required>
+                                </div>
+                            </div>
+
+                            <div class="accordion" id="accordionEdicion">
+                                <?php
+                                $mapeo = [
+                                'Cabina Interna' => ['icono' => '🚗', 'clave_form' => 'cabina_interna'],
+                                'Cabina Externa' => ['icono' => '🚙', 'clave_form' => 'cabina_externa'],
+                                'Furgón' => ['icono' => '📦', 'clave_form' => 'furgon'],
+                                'Kit de Carretera' => ['icono' => '🧰', 'clave_form' => 'kit_carretera'],
+                                'Botiquín Médico' => ['icono' => '🩹', 'clave_form' => 'botiquin'],
+                                'Otros Elementos' => ['icono' => '🔧', 'clave_form' => 'otros'],
+                            ];
+
+                                foreach ($mapeo as $nombreSeccionBD => $config):
+                                    $items = $elementos[$nombreSeccionBD] ?? [];
+                                    ?>
+                                    <div class="accordion-item border-0">
+                                        <h2 class="accordion-header"
+                                            id="headingEdit_<?= htmlspecialchars($config['clave_form']) ?>">
+                                            <button class="accordion-button collapsed bg-gray-100" type="button"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#collapseEdit_<?= htmlspecialchars($config['clave_form']) ?>"
+                                                aria-expanded="false">
+                                                <?= $config['icono'] ?>     <?= htmlspecialchars($nombreSeccionBD) ?>
+                                            </button>
+                                        </h2>
+                                        <div id="collapseEdit_<?= htmlspecialchars($config['clave_form']) ?>"
+                                            class="accordion-collapse collapse" data-bs-parent="#accordionEdicion">
+                                            <div class="accordion-body pt-3">
+                                                <div class="row gy-3">
+                                                    <?php if (empty($items)): ?>
+                                                        <div class="col-12 text-center text-muted">No hay elementos
+                                                            definidos</div>
+                                                    <?php else: ?>
+                                                        <?php foreach ($items as $item): ?>
+                                                            <div class="col-12">
+                                                                <div class="row align-items-center">
+                                                                    <div class="col-md-3 fw-bold text-sm">
+                                                                        <?= htmlspecialchars($item) ?>
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        <select
+                                                                            name="detalle[<?= htmlspecialchars($config['clave_form']) ?>][<?= htmlspecialchars($item) ?>][estado]"
+                                                                            class="form-select form-select-sm">
+                                                                            <option value="">-- Seleccione --</option>
+                                                                            <option value="bueno">Bueno</option>
+                                                                            <option value="regular">Regular</option>
+                                                                            <option value="mal">Mal</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-md-2">
+                                                                        <input type="text"
+                                                                            name="detalle[<?= htmlspecialchars($config['clave_form']) ?>][<?= htmlspecialchars($item) ?>][cantidad]"
+                                                                            class="form-control form-control-sm"
+                                                                            placeholder="Ej: 1, N/A">
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <input type="text"
+                                                                            name="detalle[<?= htmlspecialchars($config['clave_form']) ?>][<?= htmlspecialchars($item) ?>][observacion]"
+                                                                            class="form-control form-control-sm"
+                                                                            placeholder="Observación">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+
+                            <!-- Observaciones generales -->
+                            <div class="mt-4">
+                                <label class="form-label">Observaciones Generales</label>
+                                <textarea class="form-control" name="observaciones_generales_edit" rows="3"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="btnGuardarEdicionInventario">
+                    <i class="bi bi-save"></i> Guardar Cambios
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+
             </div>
         </div>
     </div>

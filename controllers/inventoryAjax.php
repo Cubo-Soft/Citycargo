@@ -68,12 +68,12 @@ switch ($action) {
             if (!isset($_SESSION['emp_id'])) {
                 throw new Exception("Usuario no autenticado correctamente.");
             }
-            $idGrabador = (int)$_SESSION['emp_id'];
+            $idGrabador = (int) $_SESSION['emp_id'];
 
             if ($idGrabador <= 0) {
                 throw new Exception("ID de usuario inválido.");
             }
-error_log("POST recibido: " . print_r($_POST, true));
+            error_log("POST recibido: " . print_r($_POST, true));
             $datosEncabezado = [
                 'placa' => $_POST['placa'] ?? '',
                 'nombre_propietario' => $_POST['nombre_propietario'] ?? '',
@@ -81,7 +81,7 @@ error_log("POST recibido: " . print_r($_POST, true));
                 'tipo_vehiculo' => $_POST['tipo_vehiculo'] ?? '',
                 'marca' => $_POST['marca'] ?? '',
                 'tipo_carroceria' => $_POST['tipo_carroceria'] ?? '',
-                'kilometraje' => !empty($_POST['kilometraje']) ? (int)$_POST['kilometraje'] : 0,
+                'kilometraje' => !empty($_POST['kilometraje']) ? (int) $_POST['kilometraje'] : 0,
                 'fecha' => $_POST['fecha'] ?? date('Y-m-d'),
                 'observaciones_generales' => $_POST['observaciones_generales'] ?? ''
             ];
@@ -99,6 +99,66 @@ error_log("POST recibido: " . print_r($_POST, true));
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
         break;
+
+    // ✅ OBTENER DETALLE COMPLETO DE UN INVENTARIO
+    case 'obtenerDetalleInventario':
+        $idInventario = (int) ($_POST['id_inventario'] ?? 0);
+        if ($idInventario <= 0) {
+            echo json_encode(['success' => false, 'message' => 'ID de inventario inválido.']);
+            break;
+        }
+
+        $detalle = $model->obtenerDetalleInventario($idInventario);
+        if ($detalle) {
+            echo json_encode(['success' => true, 'data' => $detalle]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Inventario no encontrado.']);
+        }
+        break;
+
+    // ✅ ACTUALIZAR INVENTARIO
+    case 'actualizarInventario':
+    try {
+        if (!isset($_SESSION['emp_id'])) {
+            throw new Exception("Usuario no autenticado.");
+        }
+        $idGrabador = (int) $_SESSION['emp_id'];
+        $idInventario = (int) ($_POST['id_inventario'] ?? 0);
+
+        if ($idInventario <= 0) {
+            throw new Exception("ID de inventario inválido.");
+        }
+
+        $datosEncabezado = [
+            'id' => $idInventario,
+            'placa' => $_POST['placa'] ?? '',
+            'nombre_propietario' => $_POST['nombre_propietario'] ?? '',
+            'identificacion' => $_POST['identificacion'] ?? '',
+            'tipo_vehiculo' => $_POST['tipo_vehiculo'] ?? '',
+            'marca' => $_POST['marca'] ?? '',
+            'tipo_carroceria' => $_POST['tipo_carroceria'] ?? '',
+            'kilometraje' => !empty($_POST['kilometraje']) ? (int) $_POST['kilometraje'] : 0,
+            'fecha' => $_POST['fecha'] ?? date('Y-m-d'),
+            'observaciones_generales' => $_POST['observaciones_generales'] ?? ''
+        ];
+
+        // ✅ SIMPLIFICAR - PHP ya reconstruye automáticamente el array
+        $detalleInventario = $_POST['detalle'] ?? [];
+
+        error_log("Detalle recibido (simplificado): " . print_r($detalleInventario, true));
+
+        $model->actualizarInventarioCompleto($datosEncabezado, $detalleInventario, $idGrabador);
+        echo json_encode(['success' => true, 'message' => 'Inventario actualizado correctamente.']);
+    } catch (Exception $e) {
+        error_log("Error en actualizarInventario: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
+    break;
+
+
+
+    
+    
 
     default:
         echo json_encode(['success' => false, 'message' => 'Acción no válida']);

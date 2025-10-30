@@ -270,8 +270,9 @@ class inventoryModel
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             $stmt = $this->conn->prepare($sqlEnc);
+
             $stmt->bind_param(
-                "sssssisssi",
+                "sssssssssi",
                 $encabezado['placa'],
                 $encabezado['nombre_propietario'],
                 $encabezado['identificacion'],
@@ -320,7 +321,7 @@ class inventoryModel
                     $cantidad = !empty($valores['cantidad']) ? $valores['cantidad'] : null;
                     $obs = !empty($valores['observacion']) ? $valores['observacion'] : null;
                     $stmtDet->bind_param(
-                        "siiiiiss",
+                        "siiiissi",
                         $encabezado['placa'],
                         $idEncabezado,
                         $idElemento,
@@ -359,6 +360,144 @@ class inventoryModel
             $mapa[$row['clave']] = $row['id_tip_elemento'];
         }
         return $mapa;
+    }
+
+    // ✅ OBTENER DETALLE DEL INVENTARIO (encabezado + items)
+    public function obtenerDetalleInventario($idInventario)
+    {
+        // 1. Obtener encabezado
+        $sqlEnc = "SELECT * FROM inve_encabezado WHERE id = ?";
+        $stmtEnc = $this->conn->prepare($sqlEnc);
+        $stmtEnc->bind_param("i", $idInventario);
+        $stmtEnc->execute();
+        $encabezado = $stmtEnc->get_result()->fetch_assoc();
+
+        if (!$encabezado) {
+            return null;
+        }
+
+        // 2. Obtener detalle con nombres de elementos y secciones
+        $sqlDet = "
+        SELECT 
+            iv.*,
+            te.des_elemento AS elemento,
+            ti.des_tipo_inve AS seccion
+        FROM inve_vehiculo iv
+        LEFT JOIN tipos_elementos te ON iv.id_elemen_inve = te.id_tip_elemento
+        LEFT JOIN tipos_inve ti ON te.id_tipo_inve = ti.id_tip_inve
+        WHERE iv.id_inve_encabezado = ?
+        ORDER BY ti.id_tip_inve, te.des_elemento
+    ";
+        $stmtDet = $this->conn->prepare($sqlDet);
+        $stmtDet->bind_param("i", $idInventario);
+        $stmtDet->execute();
+        $detalle = [];
+        $result = $stmtDet->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $detalle[] = $row;
+        }
+
+        return [
+            'encabezado' => $encabezado,
+            'detalle' => $detalle
+        ];
+    }
+
+    // ✅ Actualizar inventario completo
+    public function actualizarInventarioCompleto($encabezado, $detalle, $idUsuario)
+    {
+        $this->conn->autocommit(FALSE);
+        try {
+            // 1. Actualizar encabezado
+            $sqlUpd = "UPDATE inve_encabezado SET 
+            nombre_propietario = ?, identificacion = ?, tipo_vehiculo = ?,
+            marca = ?, tipo_carroceria = ?, kilometraje = ?, 
+            fecha_inven = ?, observaciones_generales = ?
+            WHERE id = ?";
+
+            $stmt = $this->conn->prepare($sqlUpd);
+            $stmt->bind_param(
+                "sssssisss",
+                $encabezado['nombre_propietario'],
+                $encabezado['identificacion'],
+                $encabezado['tipo_vehiculo'],
+                $encabezado['marca'],
+                $encabezado['tipo_carroceria'],
+                $encabezado['kilometraje'],
+                $encabezado['fecha'],
+                $encabezado['observaciones_generales'],
+                $encabezado['id']
+            );
+            $stmt->execute();
+
+            // 2. Eliminar detalle anterior
+            $this->conn->query("DELETE FROM inve_vehiculo WHERE id_inve_encabezado = " . (int) $encabezado['id']);
+
+            // 3. Insertar nuevo detalle (igual que al crear)
+            $mapa = $this->obtenerMapaElementos();
+            $totalInsertados = 0;
+
+// DEBUG: Ver qué llega al modelo
+        error_log("=== DEBUG DETALLE EN MODELO ===");
+        error_log("Detalle recibido: " . print_r($detalle, true));
+        error_log("Mapa elementos: " . print_r($mapa, true));//borrar
+
+            foreach ($detalle as $seccion => $elementos) {
+                foreach ($elementos as $nombre => $valores) {
+                    $estado = trim($valores['estado'] ?? '');
+                    if (!in_array($estado, ['bueno', 'regular', 'mal'])) {
+                        error_log("❌ Estado no válido, se salta: $nombre");//borrar
+                        continue;
+                    }
+
+                    $idElemento = $mapa[strtoupper($nombre)] ?? null;
+error_log("ID Elemento para '$nombre': " . ($idElemento ?? 'NO ENCONTRADO'));
+
+                    if (!$idElemento){
+                    error_log("❌ Elemento no encontrado en mapa: $nombre");
+                    continue;
+                }
+
+                    $idEstado = ['bueno' => 1, 'regular' => 2, 'mal' => 3][$estado] ?? 1;
+                    $cantidad = !empty($valores['cantidad']) ? $valores['cantidad'] : null;
+                    $obs = !empty($valores['observacion']) ? $valores['observacion'] : null;
+
+                    $sqlDet = "INSERT INTO inve_vehiculo (
+                    placa, id_inve_encabezado, id_elemen_inve, id_estado_inve, 
+                    cantidad, observacion_uno, fecha_inven, id_grabador
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+                    $stmtDet = $this->conn->prepare($sqlDet);
+                    $stmtDet->bind_param(
+                        "siiiiiss",
+                        $encabezado['placa'],
+                        $encabezado['id'],
+                        $idElemento,
+                        $idEstado,
+                        $cantidad,
+                        $obs,
+                        $encabezado['fecha'],
+                        $idUsuario
+                    );
+                    $stmtDet->execute();
+                    $totalInsertados++;
+error_log("✅ Elemento insertado: $nombre - Total: $totalInsertados");
+
+                }
+            }
+error_log("=== FIN DEBUG - Total insertados: $totalInsertados ===");
+            if ($totalInsertados == 0) {
+                throw new Exception("Debe llenar al menos un elemento del inventario.");
+            }
+
+            $this->conn->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->conn->rollback();
+            throw $e;
+        } finally {
+            $this->conn->autocommit(TRUE);
+        }
     }
 
 

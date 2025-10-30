@@ -1,5 +1,5 @@
 function formatearFechaAISO(fecha) {
-    // Asume que la fecha viene como "dd-mm-yyyy" o "dd/mm/yyyy"
+    
     if (!fecha.includes("-") && !fecha.includes("/")) return fecha;
 
     const sep = fecha.includes("/") ? "/" : "-";
