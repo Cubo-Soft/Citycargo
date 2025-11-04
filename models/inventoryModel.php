@@ -437,11 +437,6 @@ class inventoryModel
             $mapa = $this->obtenerMapaElementos();
             $totalInsertados = 0;
 
-// DEBUG: Ver qué llega al modelo
-        error_log("=== DEBUG DETALLE EN MODELO ===");
-        error_log("Detalle recibido: " . print_r($detalle, true));
-        error_log("Mapa elementos: " . print_r($mapa, true));//borrar
-
             foreach ($detalle as $seccion => $elementos) {
                 foreach ($elementos as $nombre => $valores) {
                     $estado = trim($valores['estado'] ?? '');
@@ -451,7 +446,6 @@ class inventoryModel
                     }
 
                     $idElemento = $mapa[strtoupper($nombre)] ?? null;
-error_log("ID Elemento para '$nombre': " . ($idElemento ?? 'NO ENCONTRADO'));
 
                     if (!$idElemento){
                     error_log("❌ Elemento no encontrado en mapa: $nombre");
@@ -469,7 +463,7 @@ error_log("ID Elemento para '$nombre': " . ($idElemento ?? 'NO ENCONTRADO'));
 
                     $stmtDet = $this->conn->prepare($sqlDet);
                     $stmtDet->bind_param(
-                        "siiiiiss",
+                        "siiiisss",
                         $encabezado['placa'],
                         $encabezado['id'],
                         $idElemento,
@@ -481,11 +475,9 @@ error_log("ID Elemento para '$nombre': " . ($idElemento ?? 'NO ENCONTRADO'));
                     );
                     $stmtDet->execute();
                     $totalInsertados++;
-error_log("✅ Elemento insertado: $nombre - Total: $totalInsertados");
 
                 }
             }
-error_log("=== FIN DEBUG - Total insertados: $totalInsertados ===");
             if ($totalInsertados == 0) {
                 throw new Exception("Debe llenar al menos un elemento del inventario.");
             }

@@ -168,21 +168,35 @@ $(document).on('click', '.btn-inventario-detalle', function () {
                 const e = response.data.encabezado;
 
                 let html = `
-                    <div class="row">
-                        <div class="col-md-6"><strong>Placa:</strong> ${e.placa}</div>
-                        <div class="col-md-6"><strong>Propietario:</strong> ${e.nombre_propietario}</div>
-                        <div class="col-md-6"><strong>Identificación:</strong> ${e.identificacion}</div>
-                        <div class="col-md-6"><strong>Tipo Vehículo:</strong> ${e.tipo_vehiculo}</div>
-                        <div class="col-md-6"><strong>Marca:</strong> ${e.marca}</div>
-                        <div class="col-md-6"><strong>Tipo Carrocería:</strong> ${e.tipo_carroceria}</div>
-                        <div class="col-md-6"><strong>Kilometraje:</strong> ${e.kilometraje}</div>
-                        <div class="col-md-6"><strong>Fecha:</strong> ${e.fecha_inven}</div>
-                        <div class="col-12"><strong>Observaciones Generales:</strong> ${e.observaciones_generales || '—'}</div>
+                    <div class="card mb-4 border-0">
+                        <div class="card-header border-0" style="background-color: rgb(146, 189, 130);">
+                            <h6 class="mb-0 fw-bold">📋 Información General</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-2"><strong>🚗 Placa:</strong><br><span class="text-dark">${e.placa}</span></div>
+                                <div class="col-md-4 mb-2"><strong>👤 Propietario:</strong><br><span class="text-dark">${e.nombre_propietario}</span></div>
+                                <div class="col-md-4 mb-2"><strong>📝 Identificación:</strong><br><span class="text-dark">${e.identificacion}</span></div>
+                                <div class="col-md-4 mb-2"><strong>🚙 Tipo Vehículo:</strong><br><span class="text-dark">${e.tipo_vehiculo}</span></div>
+                                <div class="col-md-4 mb-2"><strong>🏷️ Marca:</strong><br><span class="text-dark">${e.marca}</span></div>
+                                <div class="col-md-4 mb-2"><strong>📦 Tipo Carrocería:</strong><br><span class="text-dark">${e.tipo_carroceria}</span></div>
+                                <div class="col-md-4 mb-2"><strong>📊 Kilometraje:</strong><br><span class="text-dark">${e.kilometraje}</span></div>
+                                <div class="col-md-4 mb-2"><strong>📅 Fecha:</strong><br><span class="text-dark">${e.fecha_inven}</span></div>
+                                <div class="col-12 mt-2">
+                                    <strong>📝 Observaciones Generales:</strong><br>
+                                    <div class="border rounded p-2 bg-light mt-1">${e.observaciones_generales || '—'}</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>`;
 
-                // --- Agregar los elementos revisados ---
+                // --- Elementos Revisados MEJORADO ---
                 if (response.data.detalle && response.data.detalle.length > 0) {
-                    html += `<hr><h6 class="mt-3">Elementos Revisados</h6>`;
+                    html += `<div class="card border-0">
+                                <div class="card-header border-0" style="background-color: rgb(146, 189, 130);">
+                                    <h6 class="mb-0 fw-bold">🔍 Elementos Revisados</h6>
+                                </div>
+                                <div class="card-body p-0">`;
 
                     // Agrupar por sección
                     const secciones = {};
@@ -192,32 +206,90 @@ $(document).on('click', '.btn-inventario-detalle', function () {
                         secciones[sec].push(item);
                     });
 
-                    // Mostrar cada sección
+                    // Mostrar cada sección como acordeón
+                    let seccionCount = 0;
                     for (const [seccion, items] of Object.entries(secciones)) {
-                        html += `<div class="row mt-2"><div class="col-12"><strong>${seccion}:</strong></div>`;
+                        seccionCount++;
+                        const seccionId = `seccion-${seccionCount}`;
+                        
+                        html += `
+                            <div class="accordion-item border-0">
+                                <h2 class="accordion-header" id="heading-${seccionId}">
+                                    <button class="accordion-button collapsed border-0 shadow-none" type="button" 
+                                            data-bs-toggle="collapse" data-bs-target="#collapse-${seccionId}"
+                                            style="background-color: #f8f9fa;">
+                                        ${getSeccionIcon(seccion)} <span class="fw-semibold ms-2">${seccion}</span> 
+                                        <span class="badge bg-secondary ms-2 mt-1 my-1">${items.length}</span>
+                                    </button>
+                                </h2>
+                                <div id="collapse-${seccionId}" class="accordion-collapse collapse border-0" 
+                                    data-bs-parent=".card-body">
+                                    <div class="accordion-body p-2">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-hover mb-0" style="font-size: 0.875rem;">
+                                                <thead style="background-color: #deffdd;">
+                                                    <tr>
+                                                        <th width="40%" class="border-0 fw-semibold">Elemento</th>
+                                                        <th width="15%" class="border-0 fw-semibold">Estado</th>
+                                                        <th width="15%" class="border-0 fw-semibold">Cantidad</th>
+                                                        <th width="30%" class="border-0 fw-semibold">Observación</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>`;
+                        
                         items.forEach(item => {
-                            const estado = { 1: 'Bueno', 2: 'Regular', 3: 'Mal' }[item.id_estado_inve] || '—';
-                            let itemTexto = `${item.elemento}: ${estado}`;
-                            if (item.cantidad) itemTexto += ` (Cant: ${item.cantidad})`;
-                            if (item.observacion_uno) itemTexto += `  ${item.observacion_uno}`;
-                            if (item.fecha_vence) itemTexto += ` | Vence: ${item.fecha_vence}`;
-                            html += `<div class="col-md-6">${itemTexto}</div>`;
+                            const estado = { 
+                                1: '<span class="badge bg-success">Bueno</span>', 
+                                2: '<span class="badge bg-warning text-dark">Regular</span>', 
+                                3: '<span class="badge bg-danger">Mal</span>' 
+                            }[item.id_estado_inve] || '<span class="badge bg-secondary">—</span>';
+                            
+                            html += `
+                                <tr>
+                                    <td class="border-0">${item.elemento}</td>
+                                    <td class="border-0">${estado}</td>
+                                    <td class="border-0">${item.cantidad || '—'}</td>
+                                    <td class="border-0">${item.observacion_uno || '—'}</td>
+                                </tr>
+                            `;
                         });
-                        html += `</div>`;
+                        
+                        html += `
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
                     }
+                    
+                    html += `</div></div>`;
                 }
 
                 $('#contenidoInventario').html(html);
                 $('#btnEditarInventario').data('id', response.data.encabezado.id);
             } else {
-                $('#contenidoInventario').html('<p class="text-danger">Error al cargar.</p>');
+                $('#contenidoInventario').html('<div class="alert alert-danger">Error al cargar los datos.</div>');
             }
         },
         error: function () {
-            $('#contenidoInventario').html('<p class="text-danger">Error de conexión.</p>');
+            $('#contenidoInventario').html('<div class="alert alert-danger">Error de conexión al cargar el inventario.</div>');
         }
     });
 });
+
+// ✅ Función para obtener íconos según la sección
+function getSeccionIcon(seccion) {
+    const iconos = {
+        'Cabina Interna': '🚗',
+        'Cabina Externa': '🚙', 
+        'Furgón': '📦',
+        'Kit de Carretera': '🧰',
+        'Botiquín': '🩹',
+        'Otros Elementos': '🔧'
+    };
+    return iconos[seccion] || '📋';
+}
 
 // ✅ ABRIR MODAL DE EDICIÓN
 $(document).on('click', '#btnEditarInventario', function () {
@@ -318,7 +390,7 @@ $(document).on('click', '#btnGuardarEdicionInventario', function () {
         return;
     }
 
-    // ✅ USAR OBJETO NORMAL EN LUGAR DE FormData
+    // ✅ USAR OBJETO NORMAL
     const datos = {
         action: 'actualizarInventario',
         id_inventario: $('#id_inventario_edit').val(),
@@ -334,7 +406,7 @@ $(document).on('click', '#btnGuardarEdicionInventario', function () {
     };
 
     // Agregar TODOS los campos del detalle
-    $('#formEdicionInventario select[name$="[estado]"], #formEdicionInventario input[name$="[cantidad]"], #formEdicionInventario input[name$="[observacion]"]').each(function() {
+    $('#formEdicionInventario select[name$="[estado]"], #formEdicionInventario input[name$="[cantidad]"], #formEdicionInventario input[name$="[observacion]"]').each(function () {
         const name = $(this).attr('name');
         datos[name] = $(this).val();
     });

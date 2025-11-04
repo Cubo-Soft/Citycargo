@@ -339,7 +339,13 @@
                 <form id="formRev">
                     <div class="mb-3">
                         <label for="placa" class="form-label">Placa</label>
-                        <input id="placa" class="form-control" name="placa" placeholder="Placa (ej. UUU123)" required>
+                        <select class="form-select" name="placa" id="selectPlaca" required>
+                                <option value="">Seleccionar placa</option>
+                                <?php foreach ($placas as $p): ?>
+                                    <option value="<?= htmlspecialchars($p) ?>"><?= htmlspecialchars($p) ?></option>
+                                <?php endforeach; ?>
+                                <option value="nuevo" class="text-green">➕ Nueva placa</option>
+                            </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Servicio</label>

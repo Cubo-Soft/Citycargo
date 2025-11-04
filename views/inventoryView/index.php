@@ -34,7 +34,7 @@
                             <div class="col-md-3">
                                 <label class="form-label">Tipo Vehiculo *</label>
                                 <input type="text" class="form-control" name="tipo_vehiculo" id="tipo_vehiculo"
-                                    placeholder="tipo vehiculo (Ej. NHR,NPR)" required>
+                                    placeholder="Tipo vehiculo (Ej. NHR,NPR)" required>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Marca *</label>
@@ -44,7 +44,7 @@
                             <div class="col-md-3">
                                 <label class="form-label">Tipo Carrocería *</label>
                                 <input type="text" class="form-control" name="tipo_carroceria" id="tipo_carroceria"
-                                    placeholder="tipo carrocería (Ej. Furgon, Estacas)" required>
+                                    placeholder="Tipo carrocería (Ej. Furgon, Estacas)" required>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Fecha *</label>
@@ -67,7 +67,7 @@
                                 'Cabina Externa' => ['icono' => '🚙', 'clave_form' => 'cabina_externa'],
                                 'Furgón' => ['icono' => '📦', 'clave_form' => 'furgon'],
                                 'Kit de Carretera' => ['icono' => '🧰', 'clave_form' => 'kit_carretera'],
-                                'Botiquín Médico' => ['icono' => '🩹', 'clave_form' => 'botiquin'],
+                                'Botiquín' => ['icono' => '🩹', 'clave_form' => 'botiquin'],
                                 'Otros Elementos' => ['icono' => '🔧', 'clave_form' => 'otros'],
                             ];
 
@@ -333,7 +333,7 @@
                                 'Cabina Externa' => ['icono' => '🚙', 'clave_form' => 'cabina_externa'],
                                 'Furgón' => ['icono' => '📦', 'clave_form' => 'furgon'],
                                 'Kit de Carretera' => ['icono' => '🧰', 'clave_form' => 'kit_carretera'],
-                                'Botiquín Médico' => ['icono' => '🩹', 'clave_form' => 'botiquin'],
+                                'Botiquín' => ['icono' => '🩹', 'clave_form' => 'botiquin'],
                                 'Otros Elementos' => ['icono' => '🔧', 'clave_form' => 'otros'],
                             ];
 
