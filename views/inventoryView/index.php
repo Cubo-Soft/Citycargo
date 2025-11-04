@@ -34,7 +34,7 @@
                             <div class="col-md-3">
                                 <label class="form-label">Tipo Vehiculo *</label>
                                 <input type="text" class="form-control" name="tipo_vehiculo" id="tipo_vehiculo"
-                                    placeholder="tipo vehiculo (Ej. Estacas,Furgon)" required>
+                                    placeholder="tipo vehiculo (Ej. NHR,NPR)" required>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Marca *</label>
@@ -42,9 +42,9 @@
                                     id="marca" required>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Tipo Carroceria *</label>
+                                <label class="form-label">Tipo Carrocería *</label>
                                 <input type="text" class="form-control" name="tipo_carroceria" id="tipo_carroceria"
-                                    placeholder="tipo combustible (Ej. Furgon, Estacas)" required>
+                                    placeholder="tipo carrocería (Ej. Furgon, Estacas)" required>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Fecha *</label>
